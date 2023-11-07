@@ -2,13 +2,13 @@
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
-Script Version: 1.0.0
+Script Version: 1.1.0
 Flame Version: 2022
 
 URL: http://github.com/khanrahan/pyslater-for-flame
 
 Creation Date: 10.19.23
-Update Date: 10.19.23
+Update Date: 11.07.23
 
 Description:
 
@@ -40,7 +40,7 @@ from PySide2 import QtWidgets
 
 
 TITLE = 'PySlater for Flame'
-VERSION_INFO = (1, 0, 0)
+VERSION_INFO = (1, 1, 0)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 VERSION_TITLE = '{} v{}'.format(TITLE, VERSION)
 
@@ -736,7 +736,7 @@ class PySlater(object):
             self.template_html_rows = ()
 
         except TypeError:
-            self.message( 'HTML template file not found!')
+            self.message('HTML template file not found!')
             self.template_html_rows = ()
 
     def write_html_page(self, line_number_to_replace, list_of_replacements):
@@ -925,7 +925,8 @@ class PySlaterWindow(object):
         self.ttg_file_path = self.path_join(
             [self.cmd_dir, DEFAULT_TEMPLATE])
 
-        self.output_template_path = self.get_output_template()
+        self.output_template = ''
+        self.get_output_template()
 
         self.html = True
         self.html_path = ''
@@ -1106,16 +1107,9 @@ class PySlaterWindow(object):
             self.ttg_file_path = ''
 
     def get_output_template(self):
-        '''Return template filepath.'''
+        '''Assemble initial output template filepath.'''
 
-        path = os.path.join(self.default_path, DEFAULT_OUTPUT_TTG)
-
-        return path
-
-    def get_output_template_path(self):
-        '''Update attribute with string from main window.'''
-
-        self.output_template_path = self.output_template.text()
+        self.output_template = os.path.join(self.default_path, DEFAULT_OUTPUT_TTG)
 
     def message_window(self, info):
         '''Print message to the bottom section of the QWidget main window.'''
@@ -1147,7 +1141,7 @@ class PySlaterWindow(object):
             force_overwrite=True,
             html=self.html,
             message=self.message,
-            output=self.output_template_path,
+            output=self.output_template,
             row_header=1,
             skip_existing=False,
             template_ttg=self.ttg_file_path)
@@ -1155,6 +1149,14 @@ class PySlaterWindow(object):
 
     def main_window(self):
         '''The main GUI window.'''
+
+        def update_output_template():
+            '''Update self.output_template when either of the component line edits are
+            changed.'''
+
+            self.output_template = os.path.join(
+                    self.output_path_line_edit.text(),
+                    self.output_pattern_line_edit.text())
 
         def okay_button():
             '''Okay button pressed.'''
@@ -1189,8 +1191,8 @@ class PySlaterWindow(object):
         self.filter_label = FlameLabel('Filtering', 'underline')
 
         self.output_label = FlameLabel('Output', 'underline')
-
-        self.output_template_label = FlameLabel('Output Path', 'normal')
+        self.output_path_label = FlameLabel('Path', 'normal')
+        self.output_pattern_label = FlameLabel('Pattern', 'normal')
 
         # Buttons
         self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
@@ -1222,10 +1224,6 @@ class PySlaterWindow(object):
             self.csv_file_path, '*.csv', self.window)
         self.csv_path_line_edit.textChanged.connect(self.get_csv_path)
 
-        self.ttg_path_line_edit = FlameLineEditFileBrowse(
-            self.ttg_file_path, '*.ttg', self.window)
-        self.ttg_path_line_edit.textChanged.connect(self.get_ttg_file_path)
-
         self.filter_include_line_edit = FlameLineEdit('')
         self.filter_include_line_edit.setEnabled(False)  # initial state
         self.filter_include_line_edit.textChanged.connect(self.get_filter_include)
@@ -1234,8 +1232,16 @@ class PySlaterWindow(object):
         self.filter_exclude_line_edit.setEnabled(False)  # initial state
         self.filter_exclude_line_edit.textChanged.connect(self.get_filter_exclude)
 
-        self.output_template = FlameLineEdit(self.output_template_path)
-        self.output_template.textChanged.connect(self.get_output_template_path)
+        self.output_path_line_edit = FlameLineEditFileBrowse(
+            self.default_path, 'dir', self.window)
+        self.output_path_line_edit.textChanged.connect(update_output_template)
+
+        self.output_pattern_line_edit = FlameLineEdit(DEFAULT_OUTPUT_TTG)
+        self.output_pattern_line_edit.textChanged.connect(update_output_template)
+
+        self.ttg_path_line_edit = FlameLineEditFileBrowse(
+            self.ttg_file_path, '*.ttg', self.window)
+        self.ttg_path_line_edit.textChanged.connect(self.get_ttg_file_path)
 
         self.html_path_line_edit = FlameLabel('', 'background')
 
@@ -1272,13 +1278,15 @@ class PySlaterWindow(object):
         self.grid3.setVerticalSpacing(10)
         self.grid3.setHorizontalSpacing(10)
         self.grid3.addWidget(self.output_label, 0, 0, 1, 3)
-        self.grid3.addWidget(self.output_template_label, 1, 0)
-        self.grid3.addWidget(self.output_template, 1, 1)
-        self.grid3.addWidget(self.ttg_template_btn, 2, 0)
-        self.grid3.addWidget(self.ttg_path_line_edit, 2, 1)
-        self.grid3.addWidget(self.html_btn, 3, 0)
-        self.grid3.addWidget(self.html_path_line_edit, 3, 1)
-        self.grid3.addWidget(self.html_copy_btn, 3, 2)
+        self.grid3.addWidget(self.output_path_label, 1, 0)
+        self.grid3.addWidget(self.output_path_line_edit, 1, 1)
+        self.grid3.addWidget(self.output_pattern_label, 2, 0)
+        self.grid3.addWidget(self.output_pattern_line_edit, 2, 1)
+        self.grid3.addWidget(self.ttg_template_btn, 3, 0)
+        self.grid3.addWidget(self.ttg_path_line_edit, 3, 1)
+        self.grid3.addWidget(self.html_btn, 4, 0)
+        self.grid3.addWidget(self.html_path_line_edit, 4, 1)
+        self.grid3.addWidget(self.html_copy_btn, 4, 2)
 
         # Layout
         self.hbox01 = QtWidgets.QHBoxLayout()
