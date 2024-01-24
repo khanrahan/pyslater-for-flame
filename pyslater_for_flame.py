@@ -2,13 +2,13 @@
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
-Script Version: 1.1.0
+Script Version: 1.2.0
 Flame Version: 2022
 
 URL: http://github.com/khanrahan/pyslater-for-flame
 
 Creation Date: 10.19.23
-Update Date: 11.07.23
+Update Date: 01.24.24
 
 Description:
 
@@ -40,11 +40,11 @@ from PySide2 import QtWidgets
 
 
 TITLE = 'PySlater for Flame'
-VERSION_INFO = (1, 1, 0)
+VERSION_INFO = (1, 2, 0)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 VERSION_TITLE = '{} v{}'.format(TITLE, VERSION)
 
-MESSAGE_PREFIX = '[PYTHON HOOK]'
+MESSAGE_PREFIX = '[PYTHON]'
 
 DEFAULT_TEMPLATE = 'templates/default_template_16x9.ttg'
 DEFAULT_OUTPUT_TTG = '<Spot Code>_<Duration>_<Title>.ttg'
