@@ -380,7 +380,7 @@ class FlamePushButton(QtWidgets.QPushButton):
                 border: 10px solid rgb(71, 71, 71)}""")
 
 
-class PySlater(object):
+class PySlater:
     """The main ttg and html generating class.
 
     Attributes:
@@ -874,7 +874,7 @@ class PySlater(object):
         return self.results
 
 
-class PySlaterWindow(object):
+class PySlaterWindow:
     """GUI menu for Flame to interact with the PySlater command line tool."""
 
     def __init__(self, _selection):  # selection is not needed
