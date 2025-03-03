@@ -35,8 +35,9 @@ import os
 import re
 import sys
 import flame
-from PySide2 import QtCore
-from PySide2 import QtWidgets
+from PySide6 import QtCore
+from PySide6 import QtGui
+from PySide6 import QtWidgets
 
 
 TITLE = 'PySlater for Flame'
@@ -1295,7 +1296,7 @@ class PySlaterWindow(object):
         self.hbox01.addWidget(self.ok_btn)
 
         self.vbox = QtWidgets.QVBoxLayout()
-        self.vbox.setMargin(20)
+        self.vbox.setContentsMargins(20, 20, 20, 20)
         self.vbox.addLayout(self.grid1)
         self.vbox.addSpacing(20)
         self.vbox.addLayout(self.grid2)
@@ -1309,7 +1310,7 @@ class PySlaterWindow(object):
         self.window.setLayout(self.vbox)
 
         # Center Window
-        resolution = QtWidgets.QDesktopWidget().screenGeometry()
+        resolution = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
         self.window.move(resolution.center().x() - self.window_size['x'] / 2,
                          resolution.center().y() - self.window_size['y'] / 2)
@@ -1324,5 +1325,6 @@ def get_main_menu_custom_ui_actions():
     return [{'name': 'Slates...',
              'actions': [{'name': 'PySlater for Flame',
                           'execute': PySlaterWindow,
-                          'minimumVersion': '2022'}]
+                          'minimumVersion': '2025.0.0.0',
+                          }]
            }]
