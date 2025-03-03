@@ -763,16 +763,16 @@ class PySlater:
                 continue
 
             # Check for excluded rows
-            if self.row_exclude:
-                if self.row_number in self.list_offset(self.row_exclude, -1):
-                    self.message_row('Skipping - Row excluded')
-                    continue
+            if (self.row_exclude
+                and self.row_number in self.list_offset(self.row_exclude, -1)):
+                self.message_row('Skipping - Row excluded')
+                continue
 
             # Check for included rows
-            if self.row_include:
-                if self.row_number not in self.list_offset(self.row_include, -1):
-                    self.message_row('Skipping - Row not included')
-                    continue
+            if (self.row_include
+                and self.row_number not in self.list_offset(self.row_include, -1)):
+                self.message_row('Skipping - Row not included')
+                continue
 
             # Assemble replacement entries for output path
             filepath_replacements = {'column': [], 'keyword': {}}
@@ -797,20 +797,20 @@ class PySlater:
                 continue
 
             # Check output filename against filter exclude
-            if self.filter_exclude:
-                if True in [fnmatch.fnmatch(self.filepath, arg) for arg in
-                            self.filter_exclude]:
-                    self.message_row(self.filepath, 'matches exclude filter')
-                    self.message_row('Skipping', self.filepath)
-                    continue
+            if (self.filter_exclude
+                and True in
+                [fnmatch.fnmatch(self.filepath, arg) for arg in self.filter_exclude]):
+                self.message_row(self.filepath, 'matches exclude filter')
+                self.message_row('Skipping', self.filepath)
+                continue
 
             # Check output filename against include argument
-            if self.filter_include:
-                if not any(fnmatch.fnmatch(self.filepath, arg)
-                           for arg in self.filter_include):
-                    self.message_row(self.filepath, 'does not match include filter')
-                    self.message_row('Skipping', self.filepath)
-                    continue
+            if (self.filter_include
+                and not any(fnmatch.fnmatch(self.filepath, arg)
+                for arg in self.filter_include)):
+                self.message_row(self.filepath, 'does not match include filter')
+                self.message_row('Skipping', self.filepath)
+                continue
 
             self.message_row('Proceeding with', self.filename_no_ext(self.filepath))
 
@@ -864,12 +864,11 @@ class PySlater:
 
             self.read_html_template()
 
-            if not self.dry_run:
-                if self.template_html_rows:
-                    self.message(' '.join(['Writing out', self.destination_html]))
-                    self.makedirs(self.destination_html)
-                    self.write_html_page(40, ttg_filenames)
-                    self.results.append(self.destination_html)
+            if not self.dry_run and self.template_html_rows:
+                self.message(' '.join(['Writing out', self.destination_html]))
+                self.makedirs(self.destination_html)
+                self.write_html_page(40, ttg_filenames)
+                self.results.append(self.destination_html)
 
         self.message('Done!')
         return self.results
