@@ -484,7 +484,7 @@ class PySlater(object):
     @staticmethod
     def convert_from_ttg_text(decimal_string):
         """Returns unicode standard string minus the 'Text' at the beginning
-       and the <> keyword wrappers
+        and the <> keyword wrappers
         """
         return ''.join(chr(int(character)) for character in
                        decimal_string.split()[2:-1])
