@@ -81,12 +81,12 @@ class FlameButton(QtWidgets.QPushButton):
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         self.clicked.connect(connect)
         if button_color == 'normal':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QPushButton {
                     color: rgb(154, 154, 154);
                     background-color: rgb(58, 58, 58);
                     border: none;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QPushButton:hover {
                     border: 1px solid rgb(90, 90, 90)}
                 QPushButton:pressed {
@@ -100,14 +100,14 @@ class FlameButton(QtWidgets.QPushButton):
                 QToolTip {
                     color: rgb(170, 170, 170);
                     background-color: rgb(71, 71, 71);
-                    border: 10px solid rgb(71, 71, 71)}''')
+                    border: 10px solid rgb(71, 71, 71)}""")
         elif button_color == 'blue':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QPushButton {
                     color: rgb(190, 190, 190);
                     background-color: rgb(0, 110, 175);
                     border: none;
-                    font: 12px "Discreet"}
+                    font: 12px 'Discreet'}
                 QPushButton:hover {
                     border: 1px solid rgb(90, 90, 90)}
                 QPushButton:pressed {
@@ -120,7 +120,7 @@ class FlameButton(QtWidgets.QPushButton):
                 QToolTip {
                     color: rgb(170, 170, 170);
                     background-color: rgb(71, 71, 71);
-                    border: 10px solid rgb(71, 71, 71)}''')
+                    border: 10px solid rgb(71, 71, 71)}""")
 
 
 class FlameGroupBox(QtWidgets.QGroupBox):
@@ -158,30 +158,30 @@ class FlameLabel(QtWidgets.QLabel):
         # Set label stylesheet based on label_type
 
         if label_type == 'normal':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
         elif label_type == 'underline':
             self.setAlignment(QtCore.Qt.AlignCenter)
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
                     border-bottom: 1px inset rgb(40, 40, 40);
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
         elif label_type == 'background':
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLabel {
                     color: rgb(154, 154, 154);
                     background-color: rgb(30, 30, 30);
                     padding-left: 5px;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLabel:disabled {
-                    color: rgb(106, 106, 106)}''')
+                    color: rgb(106, 106, 106)}""")
 
 
 class FlameLineEdit(QtWidgets.QLineEdit):
@@ -207,7 +207,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
         self.setMinimumWidth(width)
         self.setMaximumWidth(max_width)
         self.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.setStyleSheet('''
+        self.setStyleSheet("""
             QLineEdit {
                 color: rgb(154, 154, 154);
                 background-color: rgb(55, 65, 75);
@@ -215,7 +215,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
                 selection-background-color: rgb(184, 177, 167);
                 border: 1px solid rgb(55, 65, 75);
                 padding-left: 5px;
-                font: 14px "Discreet"}
+                font: 14px 'Discreet'}
             QLineEdit:focus {background-color: rgb(73, 86, 99)}
             QLineEdit:hover {border: 1px solid rgb(90, 90, 90)}
             QLineEdit:disabled {
@@ -225,7 +225,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
             QToolTip {
                 color: rgb(170, 170, 170);
                 background-color: rgb(71, 71, 71);
-                border: none}''')
+                border: none}""")
 
 
 class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
@@ -259,34 +259,34 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
         self.setReadOnly(True)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         self.clicked.connect(self.file_browse)
-        self.setStyleSheet('''
+        self.setStyleSheet("""
             QLineEdit {
                 color: #898989;
                 background-color: #373e47;
-                font: 14px "Discreet"}
+                font: 14px 'Discreet'}
             QLineEdit:disabled {
                 color: #6a6a6a;
-                background-color: #373737}''')
+                background-color: #373737}""")
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLineEdit {
                     color: #bbbbbb;
                     background-color: #474e58;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLineEdit:disabled {
                     color: #6a6a6a;
-                    background-color: #373737}''')
+                    background-color: #373737}""")
             self.clicked.emit()
-            self.setStyleSheet('''
+            self.setStyleSheet("""
                 QLineEdit {
                     color: #898989;
                     background-color: #373e47;
-                    font: 14px "Discreet"}
+                    font: 14px 'Discreet'}
                 QLineEdit:disabled {
                     color: #6a6a6a;
-                    background-color: #373737}''')
+                    background-color: #373737}""")
         else:
             super().mousePressEvent(event)
 
@@ -340,7 +340,7 @@ class FlamePushButton(QtWidgets.QPushButton):
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         self.setMinimumSize(150, 28)
         self.setMaximumSize(150, 28)
-        self.setStyleSheet('''
+        self.setStyleSheet("""
             QPushButton {
                 color: rgb(154, 154, 154);
                 background-color: qlineargradient(
@@ -358,7 +358,7 @@ class FlamePushButton(QtWidgets.QPushButton):
                     stop: .94 rgb(44, 54, 68));
                 border-left: 1px solid rgb(58, 58, 58);
                 border-right: 1px solid rgb(44, 54, 68);
-                padding-left: 5px; font: 14px "Discreet"}
+                padding-left: 5px; font: 14px 'Discreet'}
             QPushButton:checked {
                 color: rgb(217, 217, 217);
                 background-color: qlineargradient(
@@ -390,7 +390,7 @@ class FlamePushButton(QtWidgets.QPushButton):
             QToolTip {
                 color: rgb(170, 170, 170);
                 background-color: rgb(71, 71, 71);
-                border: 10px solid rgb(71, 71, 71)}''')
+                border: 10px solid rgb(71, 71, 71)}""")
 
 
 class PySlater(object):
@@ -642,11 +642,11 @@ class PySlater(object):
             return ()
 
     def get_template_html(self):
-        """return path to default template in default location."""
+        """Return path to default template in default location."""
         return os.path.join(self.script_path, 'templates', 'template.html')
 
     def get_ttg_keywords(self):
-        """return a dictionary with line numbers and keywords converted to unicode."""
+        """Return a dictionary with line numbers and keywords converted to unicode."""
         ttg_keywords = self.find_ttg_keywords(self.template_ttg_rows)
         ttg_keywords_unicode = {index: self.convert_from_ttg_text(raw_string) for
                                 index, raw_string in list(ttg_keywords.items())}
@@ -730,8 +730,8 @@ class PySlater(object):
         Args:
             self.template_html_rows:
         """
-        html_line = '''  <button
-        data-clipboard-text=\"master_name_goes_here\">master_name_goes_here</button>'''
+        html_line = """  <button
+        data-clipboard-text=\"master_name_goes_here\">master_name_goes_here</button>"""
 
         if self.template_html_rows:
             with open(self.destination_html, 'w', encoding='utf-8') as destination_file:
@@ -1285,7 +1285,7 @@ class PySlaterWindow(object):
 
 
 def get_main_menu_custom_ui_actions():
-    """Python hook for Flame Fish menu """
+    """Python hook for Flame Fish menu."""
     return [{'name': 'Slates...',
              'actions': [{'name': 'PySlater for Flame',
                           'execute': PySlaterWindow,
