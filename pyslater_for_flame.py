@@ -1,4 +1,4 @@
-'''
+"""
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
@@ -25,7 +25,7 @@ To Install:
 
     For a specific user, copy this file to:
     /opt/Autodesk/user/<user name>/python
-'''
+"""
 
 from __future__ import print_function
 import csv
@@ -56,7 +56,7 @@ SETUPS_ROOT = '/opt/Autodesk/project'
 
 
 class FlameButton(QtWidgets.QPushButton):
-    '''
+    """
     Custom Qt Flame Button Widget v2.1
 
     button_name: button text [str]
@@ -69,7 +69,7 @@ class FlameButton(QtWidgets.QPushButton):
 
         button = FlameButton(
             'Button Name', do_something__when_pressed, button_color='blue')
-    '''
+    """
 
     def __init__(self, button_name, connect, button_color='normal', button_width=150,
                  button_max_width=150):
@@ -134,7 +134,7 @@ class FlameGroupBox(QtWidgets.QGroupBox):
 
 
 class FlameLabel(QtWidgets.QLabel):
-    '''
+    """
     Custom Qt Flame Label Widget v2.1
 
     label_name:  text displayed [str]
@@ -145,7 +145,7 @@ class FlameLabel(QtWidgets.QLabel):
     Usage:
 
         label = FlameLabel('Label Name', 'normal', 300)
-    '''
+    """
 
     def __init__(self, label_name, label_type='normal', label_width=150):
         super(FlameLabel, self).__init__()
@@ -185,7 +185,7 @@ class FlameLabel(QtWidgets.QLabel):
 
 
 class FlameLineEdit(QtWidgets.QLineEdit):
-    '''
+    """
     Custom Qt Flame Line Edit Widget v2.1
 
     Main window should include this: window.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -197,7 +197,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
     Usage:
 
         line_edit = FlameLineEdit('Some text here')
-    '''
+    """
 
     def __init__(self, text, width=150, max_width=2000):
         super(FlameLineEdit, self).__init__()
@@ -229,7 +229,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
 
 
 class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
-    '''
+    """
     Custom Qt Flame Clickable Line Edit Widget with File Browser
 
     To use:
@@ -242,7 +242,7 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
     filter_type:
         Type of file browser will filter_type for. If set to 'dir', browser will select
         directory
-    '''
+    """
 
     clicked = QtCore.Signal()
 
@@ -322,12 +322,12 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
 
 
 class FlamePushButton(QtWidgets.QPushButton):
-    '''
+    """
     Custom Qt Flame Push Button Widget
 
     This is the original Push Button Widget with just the StyleSheet from the most
     recent iteration on pyflame.com.
-    '''
+    """
 
     def __init__(self, name, parent, checked, connect, *args, **kwargs):
         super(FlamePushButton, self).__init__(*args, **kwargs)
@@ -394,7 +394,7 @@ class FlamePushButton(QtWidgets.QPushButton):
 
 
 class PySlater(object):
-    '''The main ttg and html generating class.
+    """The main ttg and html generating class.
 
     Attributes:
         csv_file:
@@ -427,7 +427,7 @@ class PySlater(object):
             A string containing an HTML template file to populate with result TTG names.
         template_ttg:
             A string containing an TTG template file to populate with data from the CSV.
-    '''
+    """
 
     def __init__(self, csv_file, output, dry_run=False, html=True, filter_include=None,
                  filter_exclude=None, force_overwrite=False, message=None,
@@ -476,50 +476,50 @@ class PySlater(object):
 
     @staticmethod
     def common_path(paths):
-        '''Returns common parent directory from list of paths.
-        Not necessary in Python 3.5 because of os.path.commonpath()'''
+        """Returns common parent directory from list of paths.
+        Not necessary in Python 3.5 because of os.path.commonpath()"""
 
         return os.path.dirname(os.path.commonprefix(paths))
 
     @staticmethod
     def convert_from_ttg_text(decimal_string):
-        '''Returns unicode standard string minus the 'Text' at the beginning
-       and the <> keyword wrappers'''
+        """Returns unicode standard string minus the 'Text' at the beginning
+       and the <> keyword wrappers"""
 
         return ''.join(chr(int(character)) for character in
                        decimal_string.split()[2:-1])
 
     @staticmethod
     def convert_to_ttg_text(string):
-        '''Returns TTG style string'''
+        """Returns TTG style string"""
 
         return ' '.join(str(ord(character)) for character in list(string))
 
     @staticmethod
     def filename_no_ext(filepath):
-        '''Return just filename without extension.'''
+        """Return just filename without extension."""
 
         return os.path.splitext(os.path.basename(filepath))[0]
 
     @staticmethod
     def find_ttg_keywords(ttg_file_list):
-        '''Returns dictionary containing the line number and contents
+        """Returns dictionary containing the line number and contents
         for the keywords that are wrapped in greater/less than symbols aka
         angle brackets.  Angle brackets follow Flame convention for tokens.
         60 = <
         62 = >
 
-        NOTE - will return empty dictionary if ttg_file_list is empty list.'''
+        NOTE - will return empty dictionary if ttg_file_list is empty list."""
 
         return {line: text for line, text in enumerate(ttg_file_list, 1) if
                 text.startswith('Text 60') and text.endswith('62')}
 
     @staticmethod
     def expand_row_notation(string):
-        '''Expand numbers listed in range notation and/or single numbers
+        """Expand numbers listed in range notation and/or single numbers
         separated by commas into a single list.
         Copied from https://gist.github.com/kgaughan/2491663
-        '''
+        """
 
         single_frames = set()
 
@@ -535,22 +535,22 @@ class PySlater(object):
 
     @staticmethod
     def get_script_path():
-        '''Returns the path to this script file.  Copied from
-        https://stackoverflow.com/questions/918154/relative-paths-in-python'''
+        """Returns the path to this script file.  Copied from
+        https://stackoverflow.com/questions/918154/relative-paths-in-python"""
 
         return os.path.dirname(os.path.abspath(__file__))
 
     @staticmethod
     def list_offset(list_of_integers, offset):
-        '''Offset each entry in a list of integers by a given offset value.'''
+        """Offset each entry in a list of integers by a given offset value."""
 
         return [x + offset for x in list_of_integers]
 
     @staticmethod
     def makedirs(filepath):
-        '''Make sure out the directories exist for given filepath
+        """Make sure out the directories exist for given filepath
         Copied from https://stackoverflow.com/a/600612/119527
-        '''
+        """
 
         dirpath = os.path.dirname(filepath)
 
@@ -566,7 +566,7 @@ class PySlater(object):
 
     @staticmethod
     def tidy_text(text):
-        '''Returns string that is appropriate for filename usage.'''
+        """Returns string that is appropriate for filename usage."""
 
         # Chop first and last character if a symbol or space.
         chopped = re.sub(r'^[\W_]+|[\W_]+$', '', text)
@@ -581,7 +581,7 @@ class PySlater(object):
 
     @staticmethod
     def overwrite_query():
-        '''Prompt user with decision to overwrite.'''
+        """Prompt user with decision to overwrite."""
 
         prompt = ('Overwrite? [y]es / [n]o / [Y]es to All / [N]o to All ')
         valid_responses = ['y', 'n', 'Y', 'N']
@@ -598,9 +598,9 @@ class PySlater(object):
         return result
 
     def convert_output_tokens(self, path):
-        '''Convert <> to {}
+        """Convert <> to {}
         Flame convention for tokens is <>. Python uses {} for string formatting.
-        '''
+        """
 
         try:
             if not path:  # Catch empty string
@@ -613,7 +613,7 @@ class PySlater(object):
             return None
 
     def expand_path(self, path):
-        '''Expand shell variables and ~'''
+        """Expand shell variables and ~"""
 
         try:
             return os.path.expandvars(os.path.expanduser(path))
@@ -622,7 +622,7 @@ class PySlater(object):
             return None
 
     def read_ttg_file(self):
-        '''Return contents of TTG file.'''
+        """Return contents of TTG file."""
 
         try:
             with open(self.template_ttg, 'r', encoding='utf-8') as open_file:
@@ -635,7 +635,7 @@ class PySlater(object):
             raise exception
 
     def read_unicode_csv_file(self):
-        '''Returns a tuple of list data from a csv file passed to it.'''
+        """Returns a tuple of list data from a csv file passed to it."""
 
         try:
             with open(self.csv_file, encoding='utf-8', newline='') as open_file:
@@ -653,12 +653,12 @@ class PySlater(object):
             return ()
 
     def get_template_html(self):
-        '''return path to default template in default location.'''
+        """return path to default template in default location."""
 
         return os.path.join(self.script_path, 'templates', 'template.html')
 
     def get_ttg_keywords(self):
-        '''return a dictionary with line numbers and keywords converted to unicode.'''
+        """return a dictionary with line numbers and keywords converted to unicode."""
 
         ttg_keywords = self.find_ttg_keywords(self.template_ttg_rows)
         ttg_keywords_unicode = {index: self.convert_from_ttg_text(raw_string) for
@@ -667,7 +667,7 @@ class PySlater(object):
         return ttg_keywords_unicode
 
     def message_row(self, *args):
-        '''Prints out message and pads the row number.'''
+        """Prints out message and pads the row number."""
 
         row_num = ['Row', str(self.row_number + 1).zfill(2)]
         divider = ['-']
@@ -676,7 +676,7 @@ class PySlater(object):
         self.message(' '.join(list(message_elements)))
 
     def write_ttg(self):
-        '''
+        """
         Writes out a TTG file line by line and replaces the tokens with data as it goes.
 
         TTG File Format lists the length of the line before listing the contents of the
@@ -695,7 +695,7 @@ class PySlater(object):
             self.template_ttg_keywords:
                 Dictionary of the keywords in the template and their line number.
                 Example {12:'Title'}
-        '''
+        """
 
         try:
             with open(self.filepath, 'w', encoding='utf-8') as ttg:
@@ -726,7 +726,7 @@ class PySlater(object):
             self.message('Skipping! Cannot write to this path.')
 
     def read_html_template(self):
-        '''Read in HTML template file.  Return tuple of file lines or empty tuple.'''
+        """Read in HTML template file.  Return tuple of file lines or empty tuple."""
 
         try:
             with open(self.template_html, encoding='utf-8', newline='') as file:
@@ -741,10 +741,10 @@ class PySlater(object):
             self.template_html_rows = ()
 
     def write_html_page(self, line_number_to_replace, list_of_replacements):
-        '''Generates HTML page of filenames to copy paste.
+        """Generates HTML page of filenames to copy paste.
 
         Args:
-            self.template_html_rows: '''
+            self.template_html_rows: """
 
         html_line = '''  <button
         data-clipboard-text=\"master_name_goes_here\">master_name_goes_here</button>'''
@@ -761,7 +761,7 @@ class PySlater(object):
                         destination_file.write(line)
 
     def run(self):
-        '''Generate the slates!'''
+        """Generate the slates!"""
 
         self.csv_rows = self.read_unicode_csv_file()
         self.filepath_pattern = self.convert_output_tokens(self.output)
@@ -905,7 +905,7 @@ class PySlater(object):
 
 
 class PySlaterWindow(object):
-    '''GUI menu for Flame to interact with the PySlater command line tool.'''
+    """GUI menu for Flame to interact with the PySlater command line tool."""
 
     def __init__(self, _selection):  # selection is not needed
 
@@ -944,20 +944,20 @@ class PySlaterWindow(object):
 
     @staticmethod
     def message_shell(info):
-        '''Print message to shell window and append global MESSAGE_PREFIX.'''
+        """Print message to shell window and append global MESSAGE_PREFIX."""
 
         sys.stdout.write(MESSAGE_PREFIX + ' ' + info + '\n')
 
     @staticmethod
     def copy_to_clipboard(text):
-        '''Self explanitory.  Only takes a string.'''
+        """Self explanitory.  Only takes a string."""
 
         qt_app_instance = QtWidgets.QApplication.instance()
         qt_app_instance.clipboard().setText(text)
 
     @staticmethod
     def get_cmd_dir():
-        '''Return string containing path where this module is located.'''
+        """Return string containing path where this module is located."""
 
         dirpath = os.path.realpath(os.path.dirname(__file__))
 
@@ -965,7 +965,7 @@ class PySlaterWindow(object):
 
     @staticmethod
     def get_project_name():
-        '''Return name of current Autodesk Flame project.'''
+        """Return name of current Autodesk Flame project."""
 
         project_name = flame.project.current_project.project_name
 
@@ -973,7 +973,7 @@ class PySlaterWindow(object):
 
     @staticmethod
     def path_join(paths):
-        '''Platform independent joining of folder paths.'''
+        """Platform independent joining of folder paths."""
 
         full_path = os.path.join(*paths)
 
@@ -981,8 +981,8 @@ class PySlaterWindow(object):
 
     @staticmethod
     def realpath_join(paths):
-        '''Platform independent joining of folder paths and replace links with actual
-        path.'''
+        """Platform independent joining of folder paths and replace links with actual
+        path."""
 
         path = os.path.join(*paths)
         real_path = os.path.realpath(path)
@@ -990,26 +990,26 @@ class PySlaterWindow(object):
         return real_path
 
     def copy_csv_to_clipboard(self):
-        '''Copy CSV to clipboard and send message to QWidget.'''
+        """Copy CSV to clipboard and send message to QWidget."""
 
         self.copy_to_clipboard(self.csv_path_line_edit.text())
         self.message_window('CSV file path copied to clipboard.')
 
     def copy_html_to_clipboard(self):
-        '''Copy HTML to clipboard and send message to QWidget.'''
+        """Copy HTML to clipboard and send message to QWidget."""
 
         self.copy_to_clipboard(self.html_path_line_edit.text())
         self.message_window('HTML file path copied to clipboard.')
 
     def copy_url_to_clipboard(self):
-        '''Copy speadsheet URL to clipboard and send message to QWidget.'''
+        """Copy speadsheet URL to clipboard and send message to QWidget."""
 
         self.copy_to_clipboard(self.url_line_edit.text())
         self.message_window('URL copied to clipboard.')
 
     def filter_exclude_btn_toggle(self):
-        '''Filter exclude and include may not be used together.  If exclude is enabled,
-        disable include, or vice versa.'''
+        """Filter exclude and include may not be used together.  If exclude is enabled,
+        disable include, or vice versa."""
 
         if not self.filter_exclude_line_edit.isEnabled():
             self.filter_exclude_line_edit.setEnabled(True)
@@ -1022,8 +1022,8 @@ class PySlaterWindow(object):
         self.get_filter_exclude()
 
     def filter_include_btn_toggle(self):
-        '''Filter exclude and include may not be used together.  If include is enabled,
-        disable exclude, or vice versa.'''
+        """Filter exclude and include may not be used together.  If include is enabled,
+        disable exclude, or vice versa."""
 
         if not self.filter_include_line_edit.isEnabled():
             self.filter_include_line_edit.setEnabled(True)
@@ -1036,9 +1036,9 @@ class PySlaterWindow(object):
         self.get_filter_include()
 
     def ttg_btn_toggle(self):
-        '''When button widget is enabled, enable corresponding line edit widget and
+        """When button widget is enabled, enable corresponding line edit widget and
         store string as attribute.  If disabled, disable corresponding line edit widget
-        and clear attribute.'''
+        and clear attribute."""
 
         if self.ttg_path_line_edit.isEnabled():
             self.ttg_path_line_edit.setEnabled(False)
@@ -1050,9 +1050,9 @@ class PySlaterWindow(object):
         self.get_ttg_file_path()
 
     def html_btn_toggle(self):
-        '''If button is enabled, enable corresponding line edit widget and set empty
+        """If button is enabled, enable corresponding line edit widget and set empty
         attribute.  If disabled, disable corresponding line edit widget and set
-        attribute.'''
+        attribute."""
 
         if self.html_path_line_edit.isEnabled():
             self.html_path_line_edit.setEnabled(False)
@@ -1062,13 +1062,13 @@ class PySlaterWindow(object):
             self.html = True
 
     def get_csv_path(self):
-        '''Update attribute with string from line edit widget.'''
+        """Update attribute with string from line edit widget."""
 
         self.csv_file_path = self.csv_path_line_edit.text()
 
     def get_filter_exclude(self):
-        '''Assemble list for filter_exclude attribute if enabled, otherwise set to empty
-        list.'''
+        """Assemble list for filter_exclude attribute if enabled, otherwise set to empty
+        list."""
 
         if self.filter_exclude_line_edit.isEnabled():
             filter_exclude_raw = self.filter_exclude_line_edit.text()
@@ -1078,8 +1078,8 @@ class PySlaterWindow(object):
             self.filter_exclude = []
 
     def get_filter_include(self):
-        '''Assemble list for filter_include attribute if enabled, otherwise set to empty
-        list.  '''
+        """Assemble list for filter_include attribute if enabled, otherwise set to empty
+        list.  """
 
         if self.filter_include_line_edit.isEnabled():
             filter_include_raw = self.filter_include_line_edit.text()
@@ -1089,18 +1089,18 @@ class PySlaterWindow(object):
             self.filter_include = []
 
     def get_html_path(self):
-        '''Assemble HTML destination filepath.'''
+        """Assemble HTML destination filepath."""
 
         self.html_path = os.path.join(self.default_path, HTML_FILENAME)
 
     def get_html_template_path(self):
-        '''Assemble HTML template filepath.'''
+        """Assemble HTML template filepath."""
 
         self.html_template_path = os.path.join(os.path.dirname(__file__), HTML_FILENAME)
 
     def get_ttg_file_path(self):
-        '''Returns path to the TTG if enabled in GUI to be used an arg for the
-        pyslater cmd line.'''
+        """Returns path to the TTG if enabled in GUI to be used an arg for the
+        pyslater cmd line."""
 
         if self.ttg_path_line_edit.isEnabled():
             self.ttg_file_path = self.ttg_path_line_edit.text()
@@ -1108,23 +1108,23 @@ class PySlaterWindow(object):
             self.ttg_file_path = ''
 
     def get_output_template(self):
-        '''Assemble initial output template filepath.'''
+        """Assemble initial output template filepath."""
 
         self.output_template = os.path.join(self.default_path, DEFAULT_OUTPUT_TTG)
 
     def message_window(self, info):
-        '''Print message to the bottom section of the QWidget main window.'''
+        """Print message to the bottom section of the QWidget main window."""
 
         self.text.appendPlainText(info)
 
     def message(self, info):
-        '''Print message to shell window & QWidget.'''
+        """Print message to shell window & QWidget."""
 
         self.message_shell(info)
         self.message_window(info)
 
     def update_html_line_edit(self):
-        '''Retrieve HTML from returned results, display path in main window.'''
+        """Retrieve HTML from returned results, display path in main window."""
 
         if self.html:
             self.html_path_line_edit.setText(self.pys.results[-1])
@@ -1132,7 +1132,7 @@ class PySlaterWindow(object):
             self.html_path_line_edit.setText('')
 
     def make_slates(self):
-        '''Assemble all the attributes and run it.'''
+        """Assemble all the attributes and run it."""
 
         # Run the PySlater class
         self.pys = PySlater(
@@ -1149,25 +1149,25 @@ class PySlaterWindow(object):
         self.pys.run()
 
     def main_window(self):
-        '''The main GUI window.'''
+        """The main GUI window."""
 
         def update_output_template():
-            '''Update self.output_template when either of the component line edits are
-            changed.'''
+            """Update self.output_template when either of the component line edits are
+            changed."""
 
             self.output_template = os.path.join(
                     self.output_path_line_edit.text(),
                     self.output_pattern_line_edit.text())
 
         def okay_button():
-            '''Okay button pressed.'''
+            """Okay button pressed."""
 
             self.text.clear()  # Clear the previous shell output
             self.make_slates()
             self.update_html_line_edit()  # update HTML line if HTML file now exists
 
         def close_button():
-            '''Close button pressed.'''
+            """Close button pressed."""
 
             self.message_shell('Window closed!')
             self.window.close()
@@ -1320,7 +1320,7 @@ class PySlaterWindow(object):
 
 
 def get_main_menu_custom_ui_actions():
-    '''Python hook for Flame Fish menu '''
+    """Python hook for Flame Fish menu """
 
     return [{'name': 'Slates...',
              'actions': [{'name': 'PySlater for Flame',
