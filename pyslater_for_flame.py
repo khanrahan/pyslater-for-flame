@@ -619,7 +619,7 @@ class PySlater:
 
             return tuple(unicode_rows)
 
-        except IOError:
+        except OSError:
             self.message('CSV file not found!')
             return ()
 
@@ -693,7 +693,7 @@ class PySlater:
                         continue
                     else:
                         ttg.write(text + '\n')
-        except IOError:
+        except OSError:
             self.message('Skipping! Cannot write to this path.')
 
     def read_html_template(self):
@@ -702,7 +702,7 @@ class PySlater:
             with open(self.template_html, encoding='utf-8', newline='') as file:
                 self.template_html_rows = file.readlines()
 
-        except IOError:
+        except OSError:
             self.message('HTML template file not found!')
             self.template_html_rows = ()
 
