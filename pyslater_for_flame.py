@@ -735,7 +735,8 @@ class PySlater:
         self.csv_rows = self.read_unicode_csv_file()
         self.filepath_pattern = self.convert_output_tokens(self.output)
         self.template_ttg_rows = self.read_ttg_file() if self.template_ttg else []
-        self.template_ttg_keywords = self.get_ttg_keywords() if self.template_ttg else {}
+        self.template_ttg_keywords = (self.get_ttg_keywords() if self.template_ttg
+                                      else {})
 
         # Print info for TTG template keywords
         if self.template_ttg_keywords:
