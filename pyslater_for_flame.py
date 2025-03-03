@@ -72,7 +72,7 @@ class FlameButton(QtWidgets.QPushButton):
 
     def __init__(self, button_name, connect, button_color='normal', button_width=150,
                  button_max_width=150):
-        super(FlameButton, self).__init__()
+        super().__init__()
 
         self.setText(button_name)
         self.setMinimumSize(QtCore.QSize(button_width, 28))
@@ -126,7 +126,7 @@ class FlameGroupBox(QtWidgets.QGroupBox):
     ''' '''
 
     def __init__(self, group_name, parent_window, *args, **kwargs):
-        super(FlameGroupBox, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.setTitle(group_name)
         self.setParent(parent_window)
@@ -147,7 +147,7 @@ class FlameLabel(QtWidgets.QLabel):
     """
 
     def __init__(self, label_name, label_type='normal', label_width=150):
-        super(FlameLabel, self).__init__()
+        super().__init__()
 
         self.setText(label_name)
         self.setMinimumSize(label_width, 28)
@@ -199,7 +199,7 @@ class FlameLineEdit(QtWidgets.QLineEdit):
     """
 
     def __init__(self, text, width=150, max_width=2000):
-        super(FlameLineEdit, self).__init__()
+        super().__init__()
 
         self.setText(text)
         self.setMinimumHeight(28)
@@ -246,7 +246,7 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
     clicked = QtCore.Signal()
 
     def __init__(self, file_path, filter_type, parent, *args, **kwargs):
-        super(FlameLineEditFileBrowse, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.filter_type = filter_type
         self.file_path = file_path
@@ -329,7 +329,7 @@ class FlamePushButton(QtWidgets.QPushButton):
     """
 
     def __init__(self, name, parent, checked, connect, *args, **kwargs):
-        super(FlamePushButton, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.setText(name)
         self.setParent(parent)
