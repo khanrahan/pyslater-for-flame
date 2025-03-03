@@ -120,16 +120,6 @@ class FlameButton(QtWidgets.QPushButton):
                     border: 10px solid rgb(71, 71, 71)}""")
 
 
-class FlameGroupBox(QtWidgets.QGroupBox):
-    ''' '''
-
-    def __init__(self, group_name, parent_window, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.setTitle(group_name)
-        self.setParent(parent_window)
-
-
 class FlameLabel(QtWidgets.QLabel):
     """
     Custom Qt Flame Label Widget v2.1
