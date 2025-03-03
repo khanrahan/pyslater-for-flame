@@ -477,13 +477,15 @@ class PySlater(object):
     @staticmethod
     def common_path(paths):
         """Returns common parent directory from list of paths.
-        Not necessary in Python 3.5 because of os.path.commonpath()"""
+        Not necessary in Python 3.5 because of os.path.commonpath()
+        """
         return os.path.dirname(os.path.commonprefix(paths))
 
     @staticmethod
     def convert_from_ttg_text(decimal_string):
         """Returns unicode standard string minus the 'Text' at the beginning
-       and the <> keyword wrappers"""
+       and the <> keyword wrappers
+        """
         return ''.join(chr(int(character)) for character in
                        decimal_string.split()[2:-1])
 
@@ -505,7 +507,8 @@ class PySlater(object):
         60 = <
         62 = >
 
-        NOTE - will return empty dictionary if ttg_file_list is empty list."""
+        NOTE - will return empty dictionary if ttg_file_list is empty list.
+        """
         return {line: text for line, text in enumerate(ttg_file_list, 1) if
                 text.startswith('Text 60') and text.endswith('62')}
 
@@ -530,7 +533,8 @@ class PySlater(object):
     @staticmethod
     def get_script_path():
         """Returns the path to this script file.  Copied from
-        https://stackoverflow.com/questions/918154/relative-paths-in-python"""
+        https://stackoverflow.com/questions/918154/relative-paths-in-python
+        """
         return os.path.dirname(os.path.abspath(__file__))
 
     @staticmethod
@@ -724,7 +728,8 @@ class PySlater(object):
         """Generates HTML page of filenames to copy paste.
 
         Args:
-            self.template_html_rows: """
+            self.template_html_rows:
+        """
         html_line = '''  <button
         data-clipboard-text=\"master_name_goes_here\">master_name_goes_here</button>'''
 
@@ -955,7 +960,8 @@ class PySlaterWindow(object):
     @staticmethod
     def realpath_join(paths):
         """Platform independent joining of folder paths and replace links with actual
-        path."""
+        path.
+        """
         path = os.path.join(*paths)
         real_path = os.path.realpath(path)
 
@@ -978,7 +984,8 @@ class PySlaterWindow(object):
 
     def filter_exclude_btn_toggle(self):
         """Filter exclude and include may not be used together.  If exclude is enabled,
-        disable include, or vice versa."""
+        disable include, or vice versa.
+        """
         if not self.filter_exclude_line_edit.isEnabled():
             self.filter_exclude_line_edit.setEnabled(True)
 
@@ -991,7 +998,8 @@ class PySlaterWindow(object):
 
     def filter_include_btn_toggle(self):
         """Filter exclude and include may not be used together.  If include is enabled,
-        disable exclude, or vice versa."""
+        disable exclude, or vice versa.
+        """
         if not self.filter_include_line_edit.isEnabled():
             self.filter_include_line_edit.setEnabled(True)
 
@@ -1005,7 +1013,8 @@ class PySlaterWindow(object):
     def ttg_btn_toggle(self):
         """When button widget is enabled, enable corresponding line edit widget and
         store string as attribute.  If disabled, disable corresponding line edit widget
-        and clear attribute."""
+        and clear attribute.
+        """
         if self.ttg_path_line_edit.isEnabled():
             self.ttg_path_line_edit.setEnabled(False)
             self.ttg_file_path = ''
@@ -1018,7 +1027,8 @@ class PySlaterWindow(object):
     def html_btn_toggle(self):
         """If button is enabled, enable corresponding line edit widget and set empty
         attribute.  If disabled, disable corresponding line edit widget and set
-        attribute."""
+        attribute.
+        """
         if self.html_path_line_edit.isEnabled():
             self.html_path_line_edit.setEnabled(False)
             self.html = False
@@ -1032,7 +1042,8 @@ class PySlaterWindow(object):
 
     def get_filter_exclude(self):
         """Assemble list for filter_exclude attribute if enabled, otherwise set to empty
-        list."""
+        list.
+        """
         if self.filter_exclude_line_edit.isEnabled():
             filter_exclude_raw = self.filter_exclude_line_edit.text()
             self.filter_exclude = [item.strip() for item in
@@ -1042,7 +1053,8 @@ class PySlaterWindow(object):
 
     def get_filter_include(self):
         """Assemble list for filter_include attribute if enabled, otherwise set to empty
-        list.  """
+        list.
+        """
         if self.filter_include_line_edit.isEnabled():
             filter_include_raw = self.filter_include_line_edit.text()
             self.filter_include = [item.strip() for item in
@@ -1060,7 +1072,8 @@ class PySlaterWindow(object):
 
     def get_ttg_file_path(self):
         """Returns path to the TTG if enabled in GUI to be used an arg for the
-        pyslater cmd line."""
+        pyslater cmd line.
+        """
         if self.ttg_path_line_edit.isEnabled():
             self.ttg_file_path = self.ttg_path_line_edit.text()
         else:
@@ -1107,7 +1120,8 @@ class PySlaterWindow(object):
 
         def update_output_template():
             """Update self.output_template when either of the component line edits are
-            changed."""
+            changed.
+            """
             self.output_template = os.path.join(
                     self.output_path_line_edit.text(),
                     self.output_pattern_line_edit.text())
