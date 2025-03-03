@@ -754,7 +754,7 @@ class PySlater:
             self.row = csv_row_data
 
             # Check for empty row
-            if all(i == u'' for i in self.row):
+            if all(i == '' for i in self.row):
                 self.message_row('Skipping - Empty row')
                 continue
 
@@ -778,14 +778,14 @@ class PySlater:
             # Assemble replacement entries for output path
             filepath_replacements = {'column': [], 'keyword': {}}
 
-            filepath_replacements['column'] = [None if item == u'' else
+            filepath_replacements['column'] = [None if item == '' else
                                                self.tidy_text(item) for item in
                                                self.row]
 
             filepath_replacements['keyword'] = {keyword: self.tidy_text(entry) for
                                                 keyword, entry in zip(self.csv_rows[0],
                                                                       self.row)
-                                                if entry != u''}
+                                                if entry != ''}
 
             # Check output file path has all necessary entries
             try:
