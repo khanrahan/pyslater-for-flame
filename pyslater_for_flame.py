@@ -748,7 +748,9 @@ class PySlater:
         if self.csv_rows:
             self.message(f'Found {len(self.csv_rows)} rows in {self.csv_file}')
 
-        for self.row_number, self.row in enumerate(self.csv_rows):
+        for index, csv_row_data in enumerate(self.csv_rows):
+            self.row_number = index
+            self.row = csv_row_data
 
             # Check for empty row
             if all(i == u'' for i in self.row):
