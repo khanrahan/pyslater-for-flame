@@ -539,9 +539,8 @@ class PySlater:
         try:
             os.makedirs(dirpath)
         except OSError as ex:
-            if ex.errno == errno.ENOENT:  # empty filepath
-                pass
-            elif ex.errno == errno.EEXIST:
+            # ENOENT is empty filepath
+            if ex.errno in (errno.ENOENT, errno.EEXIST):
                 pass
             else:
                 raise
