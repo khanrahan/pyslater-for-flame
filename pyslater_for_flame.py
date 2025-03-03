@@ -40,7 +40,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 TITLE = 'PySlater for Flame'
 VERSION_INFO = (1, 2, 0)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
-VERSION_TITLE = '{} v{}'.format(TITLE, VERSION)
+VERSION_TITLE = f'{TITLE} v{VERSION}'
 
 MESSAGE_PREFIX = '[PYTHON]'
 
@@ -740,14 +740,14 @@ class PySlater:
 
         # Print info for TTG template keywords
         if self.template_ttg_keywords:
-            self.message('Found %s keywords in %s:' % (len(self.template_ttg_keywords),
-                                                       self.template_ttg))
+            self.message(f'Found {len(self.template_ttg_keywords)} keywords in ' +
+                         f'{self.template_ttg}')
             self.message(', '.join([keyword for _, keyword in
                                     list(self.template_ttg_keywords.items())]))
 
         # Print info for CSV file
         if self.csv_rows:
-            self.message('Found %s rows in %s' % (len(self.csv_rows), self.csv_file))
+            self.message(f'Found {len(self.csv_rows)} rows in {self.csv_file}')
 
         for self.row_number, self.row in enumerate(self.csv_rows):
 
@@ -910,7 +910,7 @@ class PySlaterWindow:
         self.main_window()
 
         self.message_shell(VERSION_TITLE)
-        self.message_shell('Script called from {}'.format(__file__))
+        self.message_shell(f'Script called from {__file__}')
 
     @staticmethod
     def message_shell(info):
