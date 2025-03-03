@@ -33,11 +33,9 @@ import fnmatch
 import os
 import re
 import sys
-import flame
-from PySide6 import QtCore
-from PySide6 import QtGui
-from PySide6 import QtWidgets
 
+import flame
+from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'PySlater for Flame'
 VERSION_INFO = (1, 2, 0)
