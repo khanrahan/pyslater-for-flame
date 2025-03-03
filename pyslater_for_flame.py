@@ -601,7 +601,7 @@ class PySlater:
     def read_ttg_file(self):
         """Return contents of TTG file."""
         try:
-            with open(self.template_ttg, 'r', encoding='utf-8') as open_file:
+            with open(self.template_ttg, encoding='utf-8') as open_file:
                 contents = open_file.read().splitlines()
                 return contents
         except FileNotFoundError:
