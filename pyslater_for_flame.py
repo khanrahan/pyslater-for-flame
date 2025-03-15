@@ -721,7 +721,6 @@ class PySlater:
         try:
             with open(self.template_html, encoding='utf-8', newline='') as file:
                 self.template_html_rows = file.readlines()
-
         except OSError:
             self.message('HTML template file not found!')
             self.template_html_rows = ()
@@ -993,6 +992,8 @@ class MainWindow(QtWidgets.QWidget):
         self.grid1.addWidget(self.csv_label, 2, 0)
         self.grid1.addWidget(self.csv_path_line_edit, 2, 1)
         self.grid1.addWidget(self.csv_copy_btn, 2, 2)
+        self.grid1.addWidget(self.ttg_template_btn, 3, 0)
+        self.grid1.addWidget(self.ttg_path_line_edit, 3, 1)
 
         # Layout - Filtering
         self.grid2 = QtWidgets.QGridLayout()
@@ -1014,11 +1015,9 @@ class MainWindow(QtWidgets.QWidget):
         self.grid3.addWidget(self.output_path_line_edit, 1, 1)
         self.grid3.addWidget(self.output_pattern_label, 2, 0)
         self.grid3.addWidget(self.output_pattern_line_edit, 2, 1)
-        self.grid3.addWidget(self.ttg_template_btn, 3, 0)
-        self.grid3.addWidget(self.ttg_path_line_edit, 3, 1)
-        self.grid3.addWidget(self.html_btn, 4, 0)
-        self.grid3.addWidget(self.html_path_line_edit, 4, 1)
-        self.grid3.addWidget(self.html_copy_btn, 4, 2)
+        self.grid3.addWidget(self.html_btn, 3, 0)
+        self.grid3.addWidget(self.html_path_line_edit, 3, 1)
+        self.grid3.addWidget(self.html_copy_btn, 3, 2)
 
         # Layout
         self.hbox01 = QtWidgets.QHBoxLayout()
