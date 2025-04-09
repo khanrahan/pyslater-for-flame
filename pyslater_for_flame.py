@@ -658,8 +658,12 @@ class PySlater:
         """Returns a tuple of list data from a csv file passed to it."""
         try:
             with open(self.csv_file, encoding='utf-8', newline='') as open_file:
-                raw_rows = csv.reader(open_file)
-                unicode_rows = list(raw_rows)
+                csv_reader = csv.reader(open_file)
+                unicode_rows = []
+                for row in csv_reader:
+                    if any(char in entry for char in ('\n', '\r') for entry in row):
+                        raise ValueError
+                    unicode_rows.append(row)
 
             return tuple(unicode_rows)
 
@@ -669,6 +673,11 @@ class PySlater:
 
         except TypeError:
             self.message('CSV file not found!')
+            return ()
+
+        except ValueError:
+            # Newlines or carriage returns found inside the CSV row entries.
+            self.message('CSV file not valid!')
             return ()
 
     def get_template_html(self):
@@ -746,10 +755,12 @@ class PySlater:
                 self.template_html_rows = file.readlines()
         except OSError:
             self.message('HTML template file not found!')
+            self.message(f'Please check {self.template_html} exists.')
             self.template_html_rows = ()
 
         except TypeError:
-            self.message('HTML template file not found!')
+            self.message('HTML template file error!')
+            self.message(f'Please verify {self.template_html} is not corrupt.')
             self.template_html_rows = ()
 
     def write_html_page(self, line_number_to_replace, list_of_replacements):
