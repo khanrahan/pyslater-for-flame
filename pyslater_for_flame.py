@@ -596,6 +596,29 @@ class PySlater:
 
         return result
 
+    @staticmethod
+    def plural(name, item):
+        """Examine an item's length and return the name with an 's' if necessary.
+
+        Used to add a trailing s to a name in an fstring if it should be plural.  Zero
+        or multiple will return a trailing s.
+
+        Args:
+            name: a string of a name in the singular form
+            item: an array of items to count with len()
+
+        Returns:
+            A string with the number of items and the name in the correct singular or
+            plural form.
+
+            for example: 0 noodles, 1 noodle, 2 noodles
+        """
+        if len(item) == 0 or len(item) > 1:
+            result = f'{len(item)} {name + "s"}'
+        if len(item) == 1:
+            result = f'1 {name}'
+        return result
+
     def convert_output_tokens(self, path):
         """Convert <> to {}.
 
@@ -761,7 +784,7 @@ class PySlater:
                                       else {})
 
         # Print info for TTG template keywords
-        self.message(f'Found {len(self.template_ttg_keywords)} keywords in ' +
+        self.message(f'Found {self.plural("keyword", self.template_ttg_keywords)} in ' +
                      f'{self.template_ttg}')
         if self.template_ttg_keywords:
             self.message(', '.join([keyword for _, keyword in
@@ -769,7 +792,8 @@ class PySlater:
 
         # Print info for CSV file
         if self.csv_rows:
-            self.message(f'Found {len(self.csv_rows)} rows in {self.csv_file}')
+            self.message(f'Found {self.plural("row", self.csv_rows)} in ' +
+                         f'{self.csv_file}')
 
         for index, csv_row_data in enumerate(self.csv_rows):
             self.row_number = index
