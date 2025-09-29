@@ -2,13 +2,13 @@
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
-Script Version: 2.0.0
+Script Version: 2.1.0
 Flame Version: 2025
 
 URL: http://github.com/khanrahan/pyslater-for-flame
 
 Creation Date: 10.19.23
-Update Date: 03.04.25
+Update Date: 09.29.25
 
 Description:
 
@@ -41,7 +41,7 @@ import flame
 from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'PySlater for Flame'
-VERSION_INFO = (2, 0, 0)
+VERSION_INFO = (2, 1, 0)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 VERSION_TITLE = f'{TITLE} v{VERSION}'
 
@@ -50,7 +50,7 @@ MESSAGE_PREFIX = '[PYTHON]'
 DEFAULT_TEMPLATE = 'templates/default_template_16x9.ttg'
 DEFAULT_OUTPUT_TTG = '<Spot Code>_<Duration>_<Title>.ttg'
 GSHEET = 'https://docs.google.com/spreadsheets/d/1Sx1WKpJlonNEdL-JeLzsJ6ybL6GxgHXP3RXasoQ8fB4/edit?usp=sharing'
-HTML_TEMPLATE = 'template/template.html'
+HTML_TEMPLATE = 'templates/template.html'
 HTML_FILENAME = 'copy_paster.html'
 SETUPS_ROOT = '/opt/Autodesk/project'
 
@@ -315,6 +315,7 @@ class FlamePushButton(QtWidgets.QPushButton):
     """
 
     def __init__(self, name, parent, checked, connect, *args, **kwargs):
+        """ """
         super().__init__(*args, **kwargs)
 
         self.setText(name)
@@ -712,7 +713,7 @@ class PySlater:
                         continue
                     else:
                         ttg.write(text + '\n')
-        except OSError:
+        except OSError as error:
             self.message('Skipping! Cannot write to this path.')
 
     def read_html_template(self):
@@ -897,269 +898,34 @@ class PySlater:
         return self.results
 
 
-class PySlaterWindow:
-    """GUI menu for Flame to interact with the PySlater command line tool."""
+class MainWindow(QtWidgets.QWidget):
+    """A view class for the main window."""
+    signal_url_copy = QtCore.Signal()
+    signal_csv_copy = QtCore.Signal()
+    signal_filter_exclude = QtCore.Signal()
+    signal_filter_include = QtCore.Signal()
+    signal_template = QtCore.Signal()
+    signal_html = QtCore.Signal()
+    signal_html_copy = QtCore.Signal()
+    signal_ok = QtCore.Signal()
+    signal_close = QtCore.Signal()
 
-    def __init__(self, _selection):  # selection is not needed
-        """Set intial class attributes for PySlaterWindow."""
-        self.pys = None
+    def __init__(self, parent_widget=None):
+        """Initialize the instance."""
+        super().__init__(parent=parent_widget)
+        self.init_window()
 
-        self.cmd_dir = self.get_cmd_dir()
-
-        self.project_name = self.get_project_name()
-
-        self.default_path = self.realpath_join(
-            [SETUPS_ROOT, self.project_name, 'text', 'flame'])
-
-        self.csv_file_path = self.default_path
-
-        self.filter_exclude = ''
-        self.filter_include = ''
-
-        self.ttg_file_path = self.path_join(
-            [self.cmd_dir, DEFAULT_TEMPLATE])
-
-        self.output_template = ''
-        self.get_output_template()
-
-        self.html = True
-        self.html_path = ''
-        self.get_html_path()
-        self.html_template_path = ''
-        self.get_html_template_path()
-
-        self.window_size = {'x': 1000, 'y': 756}
-
-        self.main_window()
-
-        self.message_shell(VERSION_TITLE)
-        self.message_shell(f'Script called from {__file__}')
-
-    @staticmethod
-    def message_shell(info):
-        """Print message to shell window and append global MESSAGE_PREFIX."""
-        sys.stdout.write(MESSAGE_PREFIX + ' ' + info + '\n')
-
-    @staticmethod
-    def copy_to_clipboard(text):
-        """Self explanitory.  Only takes a string."""
-        qt_app_instance = QtWidgets.QApplication.instance()
-        qt_app_instance.clipboard().setText(text)
-
-    @staticmethod
-    def get_cmd_dir():
-        """Return string containing path where this module is located."""
-        dirpath = os.path.realpath(os.path.dirname(__file__))
-
-        return dirpath
-
-    @staticmethod
-    def get_project_name():
-        """Return name of current Autodesk Flame project."""
-        project_name = flame.project.current_project.project_name
-
-        return project_name
-
-    @staticmethod
-    def path_join(paths):
-        """Platform independent joining of folder paths."""
-        full_path = os.path.join(*paths)
-
-        return full_path
-
-    @staticmethod
-    def realpath_join(paths):
-        """Join folder paths and return absolute path."""
-        path = os.path.join(*paths)
-        real_path = os.path.realpath(path)
-
-        return real_path
-
-    def copy_csv_to_clipboard(self):
-        """Copy CSV to clipboard and send message to QWidget."""
-        self.copy_to_clipboard(self.csv_path_line_edit.text())
-        self.message_window('CSV file path copied to clipboard.')
-
-    def copy_html_to_clipboard(self):
-        """Copy HTML to clipboard and send message to QWidget."""
-        self.copy_to_clipboard(self.html_path_line_edit.text())
-        self.message_window('HTML file path copied to clipboard.')
-
-    def copy_url_to_clipboard(self):
-        """Copy speadsheet URL to clipboard and send message to QWidget."""
-        self.copy_to_clipboard(self.url_line_edit.text())
-        self.message_window('URL copied to clipboard.')
-
-    def filter_exclude_btn_toggle(self):
-        """Code to run on Filter Exclude button press.
-
-        Filter exclude and include may not be used together.  If exclude is enabled,
-        disable include, or vice versa.
-        """
-        if not self.filter_exclude_line_edit.isEnabled():
-            self.filter_exclude_line_edit.setEnabled(True)
-
-            self.filter_include_btn.setChecked(False)
-            self.filter_include_line_edit.setEnabled(False)
-        else:
-            self.filter_exclude_line_edit.setEnabled(False)
-
-        self.get_filter_exclude()
-
-    def filter_include_btn_toggle(self):
-        """Code to run on Filter Include button press.
-
-        Filter exclude and include may not be used together.  If include is enabled,
-        disable exclude, or vice versa.
-        """
-        if not self.filter_include_line_edit.isEnabled():
-            self.filter_include_line_edit.setEnabled(True)
-
-            self.filter_exclude_btn.setChecked(False)
-            self.filter_exclude_line_edit.setEnabled(False)
-        else:
-            self.filter_include_line_edit.setEnabled(False)
-
-        self.get_filter_include()
-
-    def ttg_btn_toggle(self):
-        """Code to run on TTG button press.
-
-        When button widget is enabled, enable corresponding line edit widget and
-        store string as attribute.  If disabled, disable corresponding line edit widget
-        and clear attribute.
-        """
-        if self.ttg_path_line_edit.isEnabled():
-            self.ttg_path_line_edit.setEnabled(False)
-            self.ttg_file_path = ''
-        else:
-            self.ttg_path_line_edit.setEnabled(True)
-            self.ttg_file_path = self.ttg_path_line_edit.text()
-
-        self.get_ttg_file_path()
-
-    def html_btn_toggle(self):
-        """Code to run on HTML button press.
-
-        If button is enabled, enable corresponding line edit widget and set empty
-        attribute.  If disabled, disable corresponding line edit widget and set
-        attribute.
-        """
-        if self.html_path_line_edit.isEnabled():
-            self.html_path_line_edit.setEnabled(False)
-            self.html = False
-        else:
-            self.html_path_line_edit.setEnabled(True)
-            self.html = True
-
-    def get_csv_path(self):
-        """Update attribute with string from line edit widget."""
-        self.csv_file_path = self.csv_path_line_edit.text()
-
-    def get_filter_exclude(self):
-        """Assemble list for filter_exclude attribute if enabled, otherwise empty."""
-        if self.filter_exclude_line_edit.isEnabled():
-            filter_exclude_raw = self.filter_exclude_line_edit.text()
-            self.filter_exclude = [item.strip() for item in
-                                   filter_exclude_raw.split(',')]
-        else:
-            self.filter_exclude = []
-
-    def get_filter_include(self):
-        """Assemble list for filter_include attribute if enabled, otherwise empty."""
-        if self.filter_include_line_edit.isEnabled():
-            filter_include_raw = self.filter_include_line_edit.text()
-            self.filter_include = [item.strip() for item in
-                                   filter_include_raw.split(',')]
-        else:
-            self.filter_include = []
-
-    def get_html_path(self):
-        """Assemble HTML destination filepath."""
-        self.html_path = os.path.join(self.default_path, HTML_FILENAME)
-
-    def get_html_template_path(self):
-        """Assemble HTML template filepath."""
-        self.html_template_path = os.path.join(os.path.dirname(__file__), HTML_FILENAME)
-
-    def get_ttg_file_path(self):
-        """Gets attribute containing path to the TTG if enabled in GUI."""
-        if self.ttg_path_line_edit.isEnabled():
-            self.ttg_file_path = self.ttg_path_line_edit.text()
-        else:
-            self.ttg_file_path = ''
-
-    def get_output_template(self):
-        """Assemble initial output template filepath."""
-        self.output_template = os.path.join(self.default_path, DEFAULT_OUTPUT_TTG)
-
-    def message_window(self, info):
-        """Print message to the bottom section of the QWidget main window."""
-        self.text.appendPlainText(info)
-
-    def message(self, info):
-        """Print message to shell window & QWidget."""
-        self.message_shell(info)
-        self.message_window(info)
-
-    def update_html_line_edit(self):
-        """Retrieve HTML from returned results, display path in main window."""
-        if self.html:
-            self.html_path_line_edit.setText(self.pys.results[-1])
-        else:
-            self.html_path_line_edit.setText('')
-
-    def make_slates(self):
-        """Assemble all the attributes and run it."""
-        # Run the PySlater class
-        self.pys = PySlater(
-            csv_file=self.csv_file_path,
-            filter_include=self.filter_include,
-            filter_exclude=self.filter_exclude,
-            force_overwrite=True,
-            html=self.html,
-            message=self.message,
-            output=self.output_template,
-            row_header=1,
-            skip_existing=False,
-            template_ttg=self.ttg_file_path)
-        self.pys.run()
-
-    def main_window(self):
-        """The main GUI window."""
-
-        def update_output_template():
-            """Update output filepath template.
-
-            Update self.output_template when either of the component line edits are
-            changed.
-            """
-            self.output_template = os.path.join(
-                    self.output_path_line_edit.text(),
-                    self.output_pattern_line_edit.text())
-
-        def okay_button():
-            """Okay button pressed."""
-            self.text.clear()  # Clear the previous shell output
-            self.make_slates()
-            self.update_html_line_edit()  # update HTML line if HTML file now exists
-
-        def close_button():
-            """Close button pressed."""
-            self.message_shell('Window closed!')
-            self.window.close()
-
-        self.window = QtWidgets.QWidget()
-
-        self.window.setMinimumSize(self.window_size['x'], self.window_size['y'])
-        self.window.setStyleSheet('background-color: #272727')
-        self.window.setWindowTitle(VERSION_TITLE)
+    def init_window(self):
+        """Create the pyside objects and layout the window."""
+        self.setMinimumSize(1000, 756)
+        self.setStyleSheet('background-color: #272727')
+        self.setWindowTitle(VERSION_TITLE)
 
         # Mac needs this to close the window
-        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
-        # FlameLineEdit class needs this
-        self.window.setFocusPolicy(QtCore.Qt.StrongFocus)
+        # Keeps on top of Flame but not other windows
+        self.setWindowFlags(QtCore.Qt.Tool)
 
         # Labels
         self.input_label = FlameLabel('Input', 'underline')
@@ -1173,53 +939,41 @@ class PySlaterWindow:
         self.output_pattern_label = FlameLabel('Pattern', 'normal')
 
         # Buttons
-        self.ok_btn = FlameButton('Ok', okay_button, button_color='blue')
-
-        self.close_btn = FlameButton('Close', close_button)
-
-        self.url_copy_btn = FlameButton('Copy', self.copy_url_to_clipboard)
-
-        self.csv_copy_btn = FlameButton('Copy', self.copy_csv_to_clipboard)
+        self.ok_btn = FlameButton('Ok', self.signal_ok.emit, button_color='blue')
+        self.close_btn = FlameButton('Close', self.signal_close.emit)
+        self.url_copy_btn = FlameButton('Copy', self.signal_url_copy.emit)
+        self.csv_copy_btn = FlameButton('Copy', self.signal_csv_copy.emit)
 
         self.filter_exclude_btn = FlamePushButton(
-            'Exclude', self.window, False, self.filter_exclude_btn_toggle)
-
+            'Exclude', self, False, self.signal_filter_exclude.emit)
         self.filter_include_btn = FlamePushButton(
-            'Include', self.window, False, self.filter_include_btn_toggle)
+            'Include', self, False, self.signal_filter_include.emit)
 
         self.ttg_template_btn = FlamePushButton(
-            'TTG Template', self.window, True, self.ttg_btn_toggle)
-
+            'TTG Template', self, True, self.signal_template.emit)
         self.html_btn = FlamePushButton(
-            'HTML', self.window, True, self.html_btn_toggle)
-
-        self.html_copy_btn = FlameButton('Copy', self.copy_html_to_clipboard)
+            'HTML', self, True, self.signal_html.emit)
+        self.html_copy_btn = FlameButton('Copy', self.signal_html_copy.emit)
 
         # Line Edits
         self.url_line_edit = FlameLabel(GSHEET, 'background')
 
         self.csv_path_line_edit = FlameLineEditFileBrowse(
-            self.csv_file_path, '*.csv', self.window)
-        self.csv_path_line_edit.textChanged.connect(self.get_csv_path)
+            '/', '*.csv', self)
 
         self.filter_include_line_edit = FlameLineEdit('')
         self.filter_include_line_edit.setEnabled(False)  # initial state
-        self.filter_include_line_edit.textChanged.connect(self.get_filter_include)
 
         self.filter_exclude_line_edit = FlameLineEdit('')
         self.filter_exclude_line_edit.setEnabled(False)  # initial state
-        self.filter_exclude_line_edit.textChanged.connect(self.get_filter_exclude)
 
         self.output_path_line_edit = FlameLineEditFileBrowse(
-            self.default_path, 'dir', self.window)
-        self.output_path_line_edit.textChanged.connect(update_output_template)
+            '/', 'dir', self)
 
         self.output_pattern_line_edit = FlameLineEdit(DEFAULT_OUTPUT_TTG)
-        self.output_pattern_line_edit.textChanged.connect(update_output_template)
 
         self.ttg_path_line_edit = FlameLineEditFileBrowse(
-            self.ttg_file_path, '*.ttg', self.window)
-        self.ttg_path_line_edit.textChanged.connect(self.get_ttg_file_path)
+            '/', '*.ttg', self)
 
         self.html_path_line_edit = FlameLabel('', 'background')
 
@@ -1284,23 +1038,392 @@ class PySlaterWindow:
         self.vbox.addSpacing(10)
         self.vbox.addWidget(self.text)
 
-        self.window.setLayout(self.vbox)
+        self.setLayout(self.vbox)
 
         # Center Window
-        resolution = QtGui.QGuiApplication.primaryScreen().availableGeometry()
+        self.center_window()
 
-        self.window.move(resolution.center().x() - self.window_size['x'] / 2,
-                         resolution.center().y() - self.window_size['y'] / 2)
+    def center_window(self):
+        """Center the window on screen.
 
-        self.window.show()
-        return self.window
+        Important to note this is centering the window BEFORE it is shown.  frameSize is
+        based on setMinimumSize until the window is shown with show(), THEN it will
+        reflect actual size.  Therefore, its important to have your setMinimumSize be
+        very close to final size.
+        """
+        resolution = QtGui.QGuiApplication.primaryScreen().screenGeometry()
+        self.move(
+                (resolution.width() / 2) - (self.frameSize().width() / 2),
+                (resolution.height() / 2) - (self.frameSize().height() / 2))
+
+    def text_append(self, info):
+        """Append to the text box log."""
+        self.text.appendPlainText(info)
+
+    def text_clear(self):
+        """Clear the text box log."""
+        self.text.clear()
+
+    @property
+    def url(self):
+        """Get or set the URL input field."""
+        return self.url_line_edit.text()
+
+    @url.setter
+    def url(self, string):
+        self.url_line_edit.setText(string)
+
+    @property
+    def csv(self):
+        """Get or set the CSV input field."""
+        return self.csv_path_line_edit.text()
+
+    @csv.setter
+    def csv(self, string):
+        self.csv_path_line_edit.setText(string)
+
+    @property
+    def filter_include_btn_enabled(self):
+        """Get or set the checked state of the Filter Include button."""
+        return self.filter_include_btn.isChecked()
+
+    @filter_include_btn_enabled.setter
+    def filter_include_btn_enabled(self, boolean):
+        self.filter_include_btn.setChecked(boolean)
+
+    @property
+    def filter_include_enabled(self):
+        """Get or set the enabled state of the Filter Include input field."""
+        return self.filter_include_line_edit.isEnabled()
+
+    @filter_include_enabled.setter
+    def filter_include_enabled(self, boolean):
+        self.filter_include_line_edit.setEnabled(boolean)
+
+    @property
+    def filter_include(self):
+        """Get or set Filter Exclude input field."""
+        return self.filter_include_line_edit.text()
+
+    @filter_include.setter
+    def filter_include(self, string):
+        self.filter_include_line_edit.setText(string)
+
+    @property
+    def filter_exclude_btn_enabled(self):
+        """Get or set the checked state of the Filter Exclude button."""
+        return self.filter_exclude_btn.isChecked()
+
+    @filter_exclude_btn_enabled.setter
+    def filter_exclude_btn_enabled(self, boolean):
+        self.filter_exclude_btn.setChecked(boolean)
+
+    @property
+    def filter_exclude_enabled(self):
+        """Get or set the enabled state of the Filter Exclude input field."""
+        return self.filter_exclude_line_edit.isEnabled()
+
+    @filter_exclude_enabled.setter
+    def filter_exclude_enabled(self, boolean):
+        self.filter_exclude_line_edit.setEnabled(boolean)
+
+    @property
+    def filter_exclude(self):
+        """Get or set the Filter Exclude input field."""
+        return self.filter_exclude_line_edit.text()
+
+    @filter_exclude.setter
+    def filter_exclude(self, string):
+        self.filter_exclude_line_edit.setText(string)
+
+    @property
+    def path(self):
+        """Get or set the Output Path input field."""
+        return self.output_path_line_edit.text()
+
+    @path.setter
+    def path(self, string):
+        self.output_path_line_edit.setText(string)
+
+    @property
+    def pattern(self):
+        """Get or set the Pattern input field."""
+        return self.output_pattern_line_edit.text()
+
+    @pattern.setter
+    def pattern(self, string):
+        self.output_pattern_line_edit.setText(string)
+
+    @property
+    def template_enabled(self):
+        """Get or set whether the Template input field is enabled."""
+        return self.ttg_path_line_edit.isEnabled()
+
+    @template_enabled.setter
+    def template_enabled(self, boolean):
+        self.ttg_path_line_edit.setEnabled(boolean)
+
+    @property
+    def template(self):
+        """Get or set the Template input field."""
+        return self.ttg_path_line_edit.text()
+
+    @template.setter
+    def template(self, string):
+        self.ttg_path_line_edit.setText(string)
+
+    @property
+    def html_enabled(self):
+        """Get or set whether the HTML path is enabled."""
+        return self.html_path_line_edit.isEnabled()
+
+    @html_enabled.setter
+    def html_enabled(self, boolean):
+        self.html_path_line_edit.setEnabled(boolean)
+
+    @property
+    def html(self):
+        """Get or set the HTML input field."""
+        return self.html_path_line_edit.text()
+
+    @html.setter
+    def html(self, string):
+        self.html_path_line_edit.setText(string)
+
+
+class PySlaterFlame:
+    """GUI menu for Flame to interact with the PySlater command line tool."""
+
+    def __init__(self, _selection):  # selection is not needed
+        """Set intial class attributes for PySlaterFlame."""
+        self.message_shell(VERSION_TITLE)
+        self.message_shell(f'Script called from {__file__}')
+
+        self.pys = None
+
+        self.cmd_dir = self.get_cmd_dir()
+
+        self.project_name = self.get_project_name()
+
+        self.default_path = self.realpath_join(
+            [SETUPS_ROOT, self.project_name, 'text', 'flame'])
+
+        self.ttg_file_path = self.path_join(
+            [self.cmd_dir, DEFAULT_TEMPLATE])
+
+        self.parent_window = self.get_flame_main_window()
+        self.main_window = MainWindow(self.parent_window)
+        self.main_window.signal_ok.connect(self.okay_button)
+        self.main_window.signal_close.connect(self.close_button)
+        self.main_window.signal_url_copy.connect(self.copy_url_to_clipboard)
+        self.main_window.signal_csv_copy.connect(self.copy_csv_to_clipboard)
+        self.main_window.signal_filter_exclude.connect(self.filter_exclude_btn_toggle)
+        self.main_window.signal_filter_include.connect(self.filter_include_btn_toggle)
+        self.main_window.signal_template.connect(self.ttg_btn_toggle)
+        self.main_window.signal_html.connect(self.html_btn_toggle)
+        self.main_window.signal_html_copy.connect(self.copy_html_to_clipboard)
+        self.main_window.csv = self.default_path
+        self.main_window.path = self.default_path
+        self.main_window.template = self.ttg_file_path
+        self.main_window.show()
+
+    @staticmethod
+    def message_shell(info):
+        """Print message to shell window and append global MESSAGE_PREFIX."""
+        sys.stdout.write(MESSAGE_PREFIX + ' ' + info + '\n')
+
+    @staticmethod
+    def copy_to_clipboard(text):
+        """Self explanitory.  Only takes a string."""
+        qt_app_instance = QtWidgets.QApplication.instance()
+        qt_app_instance.clipboard().setText(text)
+
+    @staticmethod
+    def get_cmd_dir():
+        """Return string containing path where this module is located."""
+        dirpath = os.path.realpath(os.path.dirname(__file__))
+
+        return dirpath
+
+    @staticmethod
+    def get_flame_main_window():
+        """Return the Flame main window widget."""
+        for widget in QtWidgets.QApplication.topLevelWidgets():
+            if widget.objectName() == 'CF Main Window':
+                return widget
+        return None
+
+    @staticmethod
+    def get_project_name():
+        """Return name of current Autodesk Flame project."""
+        project_name = flame.project.current_project.project_name
+
+        return project_name
+
+    @staticmethod
+    def path_join(paths):
+        """Platform independent joining of folder paths."""
+        full_path = os.path.join(*paths)
+
+        return full_path
+
+    @staticmethod
+    def realpath_join(paths):
+        """Join folder paths and return absolute path."""
+        path = os.path.join(*paths)
+        real_path = os.path.realpath(path)
+
+        return real_path
+
+    def copy_csv_to_clipboard(self):
+        """Copy CSV to clipboard and send message to QWidget."""
+        self.copy_to_clipboard(self.main_window.csv)
+        self.message_window('CSV file path copied to clipboard.')
+
+    def copy_html_to_clipboard(self):
+        """Copy HTML to clipboard and send message to QWidget."""
+        self.copy_to_clipboard(self.main_window.html)
+        self.message_window('HTML file path copied to clipboard.')
+
+    def copy_url_to_clipboard(self):
+        """Copy speadsheet URL to clipboard and send message to QWidget."""
+        self.copy_to_clipboard(self.main_window.url)
+        self.message_window('URL copied to clipboard.')
+
+    def filter_exclude_btn_toggle(self):
+        """Code to run on Filter Exclude button press.
+
+        Filter exclude and include may not be used together.  If exclude is enabled,
+        disable include, or vice versa.
+        """
+        if not self.main_window.filter_exclude_enabled:
+            self.main_window.filter_exclude_enabled = True
+            self.main_window.filter_include_btn_enabled = False
+            self.main_window.filter_include_enabled = False
+        else:
+            self.main_window.filter_exclude_enabled = False
+
+    def filter_include_btn_toggle(self):
+        """Code to run on Filter Include button press.
+
+        Filter exclude and include may not be used together.  If include is enabled,
+        disable exclude, or vice versa.
+        """
+        if not self.main_window.filter_include_enabled:
+            self.main_window.filter_include_enabled = True
+            self.main_window.filter_exclude_btn_enabled = False
+            self.main_window.filter_exclude_enabled = False
+        else:
+            self.main_window.filter_include_enabled = True
+
+    def ttg_btn_toggle(self):
+        """Code to run on TTG button press.
+
+        When button widget is enabled, enable corresponding line edit widget and
+        store string as attribute.  If disabled, disable corresponding line edit widget
+        and clear attribute.
+        """
+        if self.main_window.template_enabled:
+            self.main_window.template_enabled = False
+        else:
+            self.main_window.template_enabled = True
+
+    def html_btn_toggle(self):
+        """Code to run on HTML button press.
+
+        If button is enabled, enable corresponding line edit widget and set empty
+        attribute.  If disabled, disable corresponding line edit widget and set
+        attribute.
+        """
+        if self.main_window.html_enabled:
+            self.main_window.html_enabled = False
+        else:
+            self.main_window.html_enabled = True
+
+    def get_filter_exclude(self):
+        """Assemble list for filter_exclude attribute if enabled, otherwise empty."""
+        if self.main_window.filter_exclude_enabled:
+            filter_exclude = [
+                item.strip() for item in self.main_window.filter_exclude.split(',')
+            ]
+        else:
+            filter_exclude = []
+        return filter_exclude
+
+    def get_filter_include(self):
+        """Assemble list for filter_include attribute if enabled, otherwise empty."""
+        if self.main_window.filter_include_enabled:
+            filter_include = [
+                item.strip() for item in self.main_window.filter_include.split(',')
+            ]
+        else:
+            filter_include = []
+
+        return filter_include
+
+    def get_html_template_path(self):
+        """Assemble HTML template filepath."""
+        return os.path.join(os.path.dirname(__file__), HTML_TEMPLATE)
+
+    def get_ttg_file_path(self):
+        """Gets attribute containing path to the TTG if enabled in GUI."""
+        return self.main_window.template if self.main_window.template_enabled else ''
+
+    def get_output_template(self):
+        """Assemble initial output template filepath."""
+        return os.path.join(self.main_window.path, self.main_window.pattern)
+
+    def message_window(self, info):
+        """Print message to the bottom section of the QWidget main window."""
+        self.main_window.text_append(info)
+
+    def message(self, info):
+        """Print message to shell window & QWidget."""
+        self.message_shell(info)
+        self.message_window(info)
+
+    def update_html_line_edit(self):
+        """Retrieve HTML from returned results, display path in main window."""
+        if self.main_window.html_enabled:
+            self.main_window.html = self.pys.results[-1]
+        else:
+            self.main_window.html = ''
+
+    def okay_button(self):
+        """Okay button pressed."""
+        self.main_window.text_clear()
+        self.make_slates()
+        self.update_html_line_edit()  # update HTML line if HTML file now exists
+
+    def close_button(self):
+        """Close button pressed."""
+        self.message_shell('Window closed!')
+        self.main_window.close()
+
+    def make_slates(self):
+        """Assemble all the attributes and run it."""
+        # Run the PySlater class
+        self.pys = PySlater(
+            csv_file=self.main_window.csv,
+            filter_include=self.get_filter_include(),
+            filter_exclude=self.get_filter_exclude(),
+            force_overwrite=True,
+            html=self.main_window.html_enabled,
+            message=self.message,
+            output=self.get_output_template(),
+            row_header=1,
+            skip_existing=False,
+            template_html=self.get_html_template_path(),
+            template_ttg=self.get_ttg_file_path()
+        )
+        self.pys.run()
 
 
 def get_main_menu_custom_ui_actions():
     """Python hook for Flame Fish menu."""
     return [{'name': 'Slates...',
              'actions': [{'name': 'PySlater for Flame',
-                          'execute': PySlaterWindow,
+                          'execute': PySlaterFlame,
                           'minimumVersion': '2025.0.0.0',
                           }]
            }]
