@@ -762,9 +762,9 @@ class PySlater:
                                       else {})
 
         # Print info for TTG template keywords
+        self.message(f'Found {len(self.template_ttg_keywords)} keywords in ' +
+                     f'{self.template_ttg}')
         if self.template_ttg_keywords:
-            self.message(f'Found {len(self.template_ttg_keywords)} keywords in ' +
-                         f'{self.template_ttg}')
             self.message(', '.join([keyword for _, keyword in
                                     list(self.template_ttg_keywords.items())]))
 
