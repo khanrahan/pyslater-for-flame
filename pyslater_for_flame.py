@@ -787,13 +787,13 @@ class PySlater:
 
             # Check for excluded rows
             if (self.row_exclude
-                and self.row_number in self.list_offset(self.row_exclude, -1)):
+                    and self.row_number in self.list_offset(self.row_exclude, -1)):
                 self.message_row('Skipping - Row excluded')
                 continue
 
             # Check for included rows
             if (self.row_include
-                and self.row_number not in self.list_offset(self.row_include, -1)):
+                    and self.row_number not in self.list_offset(self.row_include, -1)):
                 self.message_row('Skipping - Row not included')
                 continue
 
@@ -822,7 +822,8 @@ class PySlater:
             # Check output filename against filter exclude
             if (self.filter_exclude
                 and True in
-                [fnmatch.fnmatch(self.filepath, arg) for arg in self.filter_exclude]):
+                    [fnmatch.fnmatch(self.filepath, arg)
+                     for arg in self.filter_exclude]):
                 self.message_row(self.filepath, 'matches exclude filter')
                 self.message_row('Skipping', self.filepath)
                 continue
@@ -830,7 +831,7 @@ class PySlater:
             # Check output filename against include argument
             if (self.filter_include
                 and not any(fnmatch.fnmatch(self.filepath, arg)
-                for arg in self.filter_include)):
+                            for arg in self.filter_include)):
                 self.message_row(self.filepath, 'does not match include filter')
                 self.message_row('Skipping', self.filepath)
                 continue
