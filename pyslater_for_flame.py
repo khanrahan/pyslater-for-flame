@@ -220,25 +220,24 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
 
     To use:
 
-    lineedit:
-        FlameLineEditFileBrowse('some_path', 'Python (*.py)', window)
-    file_path:
-        Path browser will open to. If set to root folder (/), browser will open to user
-        home directory
-    filter_type:
-        Type of file browser will filter_type for. If set to 'dir', browser will select
-        directory
+        FlameLineEditFileBrowse('Python (*.py)', window, file_path='/opt/Autodesk')
+
+    Args:
+        parent:
+            Widget to parent to this widget.
+        filter_type:
+            Type of file browser will filter_type for. If set to 'dir', browser will
+            select directory
+        file_path:
+            Path browser will open to. Default is Autodesk Flame setups path.
     """
 
     clicked = QtCore.Signal()
 
-    def __init__(self, file_path, filter_type, parent, *args, **kwargs):
+    def __init__(self, filter_type, parent, file_path='', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.filter_type = filter_type
-        self.file_path = file_path
-        self.path_new = ''
-
         self.setText(file_path)
         self.setParent(parent)
         self.setMinimumHeight(28)
@@ -277,34 +276,24 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
             super().mousePressEvent(event)
 
     def file_browse(self):
-        # from PySide2 import QtWidgets
-
         file_browser = QtWidgets.QFileDialog()
-
-        # If no path go to user home directory
-
-        if self.file_path == '/':
-            self.file_path = os.path.expanduser('~')
-        if os.path.isfile(self.file_path):
-            self.file_path = self.file_path.rsplit('/', 1)[0]
-
-        file_browser.setDirectory(self.file_path)
+        dirpath = os.path.dirname(self.text())
+        file_browser.setDirectory(dirpath if os.path.exists(dirpath)
+                                  else flame.projects.current_project.setups_folder
+        )
 
         # If filter_type set to dir, open Directory Browser, if anything else, open File
         # Browser
-
         if self.filter_type == 'dir':
             file_browser.setFileMode(QtWidgets.QFileDialog.Directory)
             if file_browser.exec_():
-                self.path_new = file_browser.selectedFiles()[0]
-                self.setText(self.path_new)
+                self.setText(file_browser.selectedFiles()[0])
         else:
             # Change to ExistingFiles to capture many files
             file_browser.setFileMode(QtWidgets.QFileDialog.ExistingFile)
             file_browser.setNameFilter(self.filter_type)
             if file_browser.exec_():
-                self.path_new = file_browser.selectedFiles()[0]
-                self.setText(self.path_new)
+                self.setText(file_browser.selectedFiles()[0])
 
 
 class FlamePushButton(QtWidgets.QPushButton):
@@ -993,8 +982,7 @@ class MainWindow(QtWidgets.QWidget):
         # Line Edits
         self.url_line_edit = FlameLabel(GSHEET, 'background')
 
-        self.csv_path_line_edit = FlameLineEditFileBrowse(
-            '/', '*.csv', self)
+        self.csv_path_line_edit = FlameLineEditFileBrowse('*.csv', self)
 
         self.filter_include_line_edit = FlameLineEdit('')
         self.filter_include_line_edit.setEnabled(False)  # initial state
@@ -1002,13 +990,11 @@ class MainWindow(QtWidgets.QWidget):
         self.filter_exclude_line_edit = FlameLineEdit('')
         self.filter_exclude_line_edit.setEnabled(False)  # initial state
 
-        self.output_path_line_edit = FlameLineEditFileBrowse(
-            '/', 'dir', self)
+        self.output_path_line_edit = FlameLineEditFileBrowse('dir', self)
 
         self.output_pattern_line_edit = FlameLineEdit(DEFAULT_OUTPUT_TTG)
 
-        self.ttg_path_line_edit = FlameLineEditFileBrowse(
-            '/', '*.ttg', self)
+        self.ttg_path_line_edit = FlameLineEditFileBrowse('*.ttg', self)
 
         self.html_path_line_edit = FlameLabel('', 'background')
 
