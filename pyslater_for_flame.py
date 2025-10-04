@@ -2,13 +2,13 @@
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
-Script Version: 2.1.0
+Script Version: 2.1.1
 Flame Version: 2025
 
 URL: http://github.com/khanrahan/pyslater-for-flame
 
 Creation Date: 10.19.23
-Update Date: 09.29.25
+Update Date: 10.03.25
 
 Description:
 
@@ -41,7 +41,7 @@ import flame
 from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'PySlater for Flame'
-VERSION_INFO = (2, 1, 0)
+VERSION_INFO = (2, 1, 1)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 VERSION_TITLE = f'{TITLE} v{VERSION}'
 
