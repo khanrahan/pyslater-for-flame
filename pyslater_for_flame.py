@@ -2,13 +2,13 @@
 Script Name: PySlater for Flame
 Written By: Kieran Hanrahan
 
-Script Version: 2.1.0
+Script Version: 2.1.1
 Flame Version: 2025
 
 URL: http://github.com/khanrahan/pyslater-for-flame
 
 Creation Date: 10.19.23
-Update Date: 09.29.25
+Update Date: 10.03.25
 
 Description:
 
@@ -41,7 +41,7 @@ import flame
 from PySide6 import QtCore, QtGui, QtWidgets
 
 TITLE = 'PySlater for Flame'
-VERSION_INFO = (2, 1, 0)
+VERSION_INFO = (2, 1, 1)
 VERSION = '.'.join([str(num) for num in VERSION_INFO])
 VERSION_TITLE = f'{TITLE} v{VERSION}'
 
@@ -220,25 +220,24 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
 
     To use:
 
-    lineedit:
-        FlameLineEditFileBrowse('some_path', 'Python (*.py)', window)
-    file_path:
-        Path browser will open to. If set to root folder (/), browser will open to user
-        home directory
-    filter_type:
-        Type of file browser will filter_type for. If set to 'dir', browser will select
-        directory
+        FlameLineEditFileBrowse('Python (*.py)', window, file_path='/opt/Autodesk')
+
+    Args:
+        parent:
+            Widget to parent to this widget.
+        filter_type:
+            Type of file browser will filter_type for. If set to 'dir', browser will
+            select directory
+        file_path:
+            Path browser will open to. Default is Autodesk Flame setups path.
     """
 
     clicked = QtCore.Signal()
 
-    def __init__(self, file_path, filter_type, parent, *args, **kwargs):
+    def __init__(self, filter_type, parent, file_path='', *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.filter_type = filter_type
-        self.file_path = file_path
-        self.path_new = ''
-
         self.setText(file_path)
         self.setParent(parent)
         self.setMinimumHeight(28)
@@ -277,34 +276,24 @@ class FlameLineEditFileBrowse(QtWidgets.QLineEdit):
             super().mousePressEvent(event)
 
     def file_browse(self):
-        # from PySide2 import QtWidgets
-
         file_browser = QtWidgets.QFileDialog()
-
-        # If no path go to user home directory
-
-        if self.file_path == '/':
-            self.file_path = os.path.expanduser('~')
-        if os.path.isfile(self.file_path):
-            self.file_path = self.file_path.rsplit('/', 1)[0]
-
-        file_browser.setDirectory(self.file_path)
+        dirpath = os.path.dirname(self.text())
+        file_browser.setDirectory(dirpath if os.path.exists(dirpath)
+                                  else flame.projects.current_project.setups_folder
+        )
 
         # If filter_type set to dir, open Directory Browser, if anything else, open File
         # Browser
-
         if self.filter_type == 'dir':
             file_browser.setFileMode(QtWidgets.QFileDialog.Directory)
             if file_browser.exec_():
-                self.path_new = file_browser.selectedFiles()[0]
-                self.setText(self.path_new)
+                self.setText(file_browser.selectedFiles()[0])
         else:
             # Change to ExistingFiles to capture many files
             file_browser.setFileMode(QtWidgets.QFileDialog.ExistingFile)
             file_browser.setNameFilter(self.filter_type)
             if file_browser.exec_():
-                self.path_new = file_browser.selectedFiles()[0]
-                self.setText(self.path_new)
+                self.setText(file_browser.selectedFiles()[0])
 
 
 class FlamePushButton(QtWidgets.QPushButton):
@@ -596,6 +585,29 @@ class PySlater:
 
         return result
 
+    @staticmethod
+    def plural(name, item):
+        """Examine an item's length and return the name with an 's' if necessary.
+
+        Used to add a trailing s to a name in an fstring if it should be plural.  Zero
+        or multiple will return a trailing s.
+
+        Args:
+            name: a string of a name in the singular form
+            item: an array of items to count with len()
+
+        Returns:
+            A string with the number of items and the name in the correct singular or
+            plural form.
+
+            for example: 0 noodles, 1 noodle, 2 noodles
+        """
+        if len(item) == 0 or len(item) > 1:
+            result = f'{len(item)} {name + "s"}'
+        if len(item) == 1:
+            result = f'1 {name}'
+        return result
+
     def convert_output_tokens(self, path):
         """Convert <> to {}.
 
@@ -635,8 +647,12 @@ class PySlater:
         """Returns a tuple of list data from a csv file passed to it."""
         try:
             with open(self.csv_file, encoding='utf-8', newline='') as open_file:
-                raw_rows = csv.reader(open_file)
-                unicode_rows = list(raw_rows)
+                csv_reader = csv.reader(open_file)
+                unicode_rows = []
+                for row in csv_reader:
+                    if any(char in entry for char in ('\n', '\r') for entry in row):
+                        raise ValueError
+                    unicode_rows.append(row)
 
             return tuple(unicode_rows)
 
@@ -646,6 +662,11 @@ class PySlater:
 
         except TypeError:
             self.message('CSV file not found!')
+            return ()
+
+        except ValueError:
+            # Newlines or carriage returns found inside the CSV row entries.
+            self.message('CSV file not valid!')
             return ()
 
     def get_template_html(self):
@@ -721,13 +742,14 @@ class PySlater:
         try:
             with open(self.template_html, encoding='utf-8', newline='') as file:
                 self.template_html_rows = file.readlines()
-
         except OSError:
             self.message('HTML template file not found!')
+            self.message(f'Please check {self.template_html} exists.')
             self.template_html_rows = ()
 
         except TypeError:
-            self.message('HTML template file not found!')
+            self.message('HTML template file error!')
+            self.message(f'Please verify {self.template_html} is not corrupt.')
             self.template_html_rows = ()
 
     def write_html_page(self, line_number_to_replace, list_of_replacements):
@@ -762,15 +784,16 @@ class PySlater:
                                       else {})
 
         # Print info for TTG template keywords
+        self.message(f'Found {self.plural("keyword", self.template_ttg_keywords)} in ' +
+                     f'{self.template_ttg}')
         if self.template_ttg_keywords:
-            self.message(f'Found {len(self.template_ttg_keywords)} keywords in ' +
-                         f'{self.template_ttg}')
             self.message(', '.join([keyword for _, keyword in
                                     list(self.template_ttg_keywords.items())]))
 
         # Print info for CSV file
         if self.csv_rows:
-            self.message(f'Found {len(self.csv_rows)} rows in {self.csv_file}')
+            self.message(f'Found {self.plural("row", self.csv_rows)} in ' +
+                         f'{self.csv_file}')
 
         for index, csv_row_data in enumerate(self.csv_rows):
             self.row_number = index
@@ -788,13 +811,13 @@ class PySlater:
 
             # Check for excluded rows
             if (self.row_exclude
-                and self.row_number in self.list_offset(self.row_exclude, -1)):
+                    and self.row_number in self.list_offset(self.row_exclude, -1)):
                 self.message_row('Skipping - Row excluded')
                 continue
 
             # Check for included rows
             if (self.row_include
-                and self.row_number not in self.list_offset(self.row_include, -1)):
+                    and self.row_number not in self.list_offset(self.row_include, -1)):
                 self.message_row('Skipping - Row not included')
                 continue
 
@@ -823,7 +846,8 @@ class PySlater:
             # Check output filename against filter exclude
             if (self.filter_exclude
                 and True in
-                [fnmatch.fnmatch(self.filepath, arg) for arg in self.filter_exclude]):
+                    [fnmatch.fnmatch(self.filepath, arg)
+                     for arg in self.filter_exclude]):
                 self.message_row(self.filepath, 'matches exclude filter')
                 self.message_row('Skipping', self.filepath)
                 continue
@@ -831,7 +855,7 @@ class PySlater:
             # Check output filename against include argument
             if (self.filter_include
                 and not any(fnmatch.fnmatch(self.filepath, arg)
-                for arg in self.filter_include)):
+                            for arg in self.filter_include)):
                 self.message_row(self.filepath, 'does not match include filter')
                 self.message_row('Skipping', self.filepath)
                 continue
@@ -958,8 +982,7 @@ class MainWindow(QtWidgets.QWidget):
         # Line Edits
         self.url_line_edit = FlameLabel(GSHEET, 'background')
 
-        self.csv_path_line_edit = FlameLineEditFileBrowse(
-            '/', '*.csv', self)
+        self.csv_path_line_edit = FlameLineEditFileBrowse('*.csv', self)
 
         self.filter_include_line_edit = FlameLineEdit('')
         self.filter_include_line_edit.setEnabled(False)  # initial state
@@ -967,13 +990,11 @@ class MainWindow(QtWidgets.QWidget):
         self.filter_exclude_line_edit = FlameLineEdit('')
         self.filter_exclude_line_edit.setEnabled(False)  # initial state
 
-        self.output_path_line_edit = FlameLineEditFileBrowse(
-            '/', 'dir', self)
+        self.output_path_line_edit = FlameLineEditFileBrowse('dir', self)
 
         self.output_pattern_line_edit = FlameLineEdit(DEFAULT_OUTPUT_TTG)
 
-        self.ttg_path_line_edit = FlameLineEditFileBrowse(
-            '/', '*.ttg', self)
+        self.ttg_path_line_edit = FlameLineEditFileBrowse('*.ttg', self)
 
         self.html_path_line_edit = FlameLabel('', 'background')
 
@@ -993,6 +1014,8 @@ class MainWindow(QtWidgets.QWidget):
         self.grid1.addWidget(self.csv_label, 2, 0)
         self.grid1.addWidget(self.csv_path_line_edit, 2, 1)
         self.grid1.addWidget(self.csv_copy_btn, 2, 2)
+        self.grid1.addWidget(self.ttg_template_btn, 3, 0)
+        self.grid1.addWidget(self.ttg_path_line_edit, 3, 1)
 
         # Layout - Filtering
         self.grid2 = QtWidgets.QGridLayout()
@@ -1014,11 +1037,9 @@ class MainWindow(QtWidgets.QWidget):
         self.grid3.addWidget(self.output_path_line_edit, 1, 1)
         self.grid3.addWidget(self.output_pattern_label, 2, 0)
         self.grid3.addWidget(self.output_pattern_line_edit, 2, 1)
-        self.grid3.addWidget(self.ttg_template_btn, 3, 0)
-        self.grid3.addWidget(self.ttg_path_line_edit, 3, 1)
-        self.grid3.addWidget(self.html_btn, 4, 0)
-        self.grid3.addWidget(self.html_path_line_edit, 4, 1)
-        self.grid3.addWidget(self.html_copy_btn, 4, 2)
+        self.grid3.addWidget(self.html_btn, 3, 0)
+        self.grid3.addWidget(self.html_path_line_edit, 3, 1)
+        self.grid3.addWidget(self.html_copy_btn, 3, 2)
 
         # Layout
         self.hbox01 = QtWidgets.QHBoxLayout()
